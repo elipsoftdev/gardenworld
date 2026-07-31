@@ -225,7 +225,10 @@ export default function Home() {
           <button type="button" className="" data-key="negro" aria-label="Acabado Negro mate" onClick={() => pickFinish("negro")}><span className="chip" style={{background: '#3F3E39'}}></span><span className="lbl">Negro mate</span></button>
         </div>
         <div className="finish-cta">
-          <a className="btn btn-brass" id="finishWa" href="#" target="_blank" rel="noopener">Cotizar este acabado</a>
+          <a className="btn btn-brass" id="finishWa" href="#" target="_blank" rel="noopener noreferrer">
+            <WhatsAppIcon />
+            Cotiza este acabado
+          </a>
           <span className="finish-sku" id="finishSku">GW-RU-PDR</span>
         </div>
       </div>
@@ -301,7 +304,10 @@ export default function Home() {
           <span className="card-sku">GW-NYL-500</span>
           <div className="card-foot">
             <span className="price">USD —<small>precio por confirmar</small></span>
-            <a className="btn btn-line" href="#cotizar" data-pick="Nylon de corte (GW-NYL-500)">Cotizar</a>
+            <a className="btn btn-line" href="#cotizar" data-pick="Nylon de corte (GW-NYL-500)">
+              <WhatsAppIcon />
+              Cotizar por WhatsApp
+            </a>
           </div>
         </div>
       </article>
@@ -318,7 +324,10 @@ export default function Home() {
           <span className="card-sku">GW-MAL-2100</span>
           <div className="card-foot">
             <span className="price">USD —<small>precio por confirmar</small></span>
-            <a className="btn btn-line" href="#cotizar" data-pick="Malla de sombra (GW-MAL-2100)">Cotizar</a>
+            <a className="btn btn-line" href="#cotizar" data-pick="Malla de sombra (GW-MAL-2100)">
+              <WhatsAppIcon />
+              Cotizar por WhatsApp
+            </a>
           </div>
         </div>
       </article>
@@ -335,7 +344,10 @@ export default function Home() {
           <span className="card-sku">GW-TUT-50</span>
           <div className="card-foot">
             <span className="price">USD —<small>precio por confirmar</small></span>
-            <a className="btn btn-line" href="#cotizar" data-pick="Tutores de bambú (GW-TUT-50)">Cotizar</a>
+            <a className="btn btn-line" href="#cotizar" data-pick="Tutores de bambú (GW-TUT-50)">
+              <WhatsAppIcon />
+              Cotizar por WhatsApp
+            </a>
           </div>
         </div>
       </article>
@@ -352,7 +364,10 @@ export default function Home() {
           <span className="card-sku">GW-GRP-100</span>
           <div className="card-foot">
             <span className="price">USD —<small>precio por confirmar</small></span>
-            <a className="btn btn-line" href="#cotizar" data-pick="Grapas de anclaje (GW-GRP-100)">Cotizar</a>
+            <a className="btn btn-line" href="#cotizar" data-pick="Grapas de anclaje (GW-GRP-100)">
+              <WhatsAppIcon />
+              Cotizar por WhatsApp
+            </a>
           </div>
         </div>
       </article>
@@ -551,9 +566,9 @@ export default function Home() {
             <option>Constructora</option>
           </select>
         </div>
-        <a className="btn btn-wa" id="waGo" href="#" style={{width: '100%', marginTop: '6px'}}>
+        <a className="btn btn-wa" id="waGo" href="#" target="_blank" rel="noopener noreferrer" style={{width: '100%', marginTop: '6px'}}>
           <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1a12 12 0 0 1-5.9-4.6c-.6-1-.9-1.9-.9-2.7 0-.8.4-1.4.8-1.8.2-.2.4-.3.6-.3h.5c.2 0 .4 0 .5.4l.8 1.8c.1.2 0 .4-.1.5l-.4.5c-.1.2-.2.3 0 .6a8 8 0 0 0 3.4 2.7c.3.1.4 0 .6-.1l.6-.7c.2-.2.3-.2.6-.1l1.8.9c.3.1.3.3.3.5s0 .8-.2 1.2Z"/></svg>
-          Abrir WhatsApp con este mensaje
+          Habla con un asesor
         </a>
       </form>
       <aside className="preview rv">
@@ -614,11 +629,19 @@ export default function Home() {
   </div>
 </footer>
 
-<a className="fab" id="fab" href="#" aria-label="Escribir por WhatsApp">
+<a className="fab" id="fab" href="#" target="_blank" rel="noopener noreferrer" aria-label="Cotiza con nosotros por WhatsApp">
   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1a12 12 0 0 1-5.9-4.6c-.6-1-.9-1.9-.9-2.7 0-.8.4-1.4.8-1.8.2-.2.4-.3.6-.3h.5c.2 0 .4 0 .5.4l.8 1.8c.1.2 0 .4-.1.5l-.4.5c-.1.2-.2.3 0 .6a8 8 0 0 0 3.4 2.7c.3.1.4 0 .6-.1l.6-.7c.2-.2.3-.2.6-.1l1.8.9c.3.1.3.3.3.5s0 .8-.2 1.2Z"/></svg>
-  <span>WhatsApp</span>
+  <span>Cotiza con nosotros</span>
 </a>
     </>
+  );
+}
+
+function WhatsAppIcon() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1a12 12 0 0 1-5.9-4.6c-.6-1-.9-1.9-.9-2.7 0-.8.4-1.4.8-1.8.2-.2.4-.3.6-.3h.5c.2 0 .4 0 .5.4l.8 1.8c.1.2 0 .4-.1.5l-.4.5c-.1.2-.2.3 0 .6a8 8 0 0 0 3.4 2.7c.3.1.4 0 .6-.1l.6-.7c.2-.2.3-.2.6-.1l1.8.9c.3.1.3.3.3.5s0 .8-.2 1.2Z" />
+    </svg>
   );
 }
 
