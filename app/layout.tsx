@@ -2,16 +2,16 @@ import './globals.css';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Garden World | Productos, plantas y paisajismo',
+  title: 'Garden World | Tu jardín. Tu diseño.',
   description:
-    'Productos, plantas y servicios de paisajismo para crear y vivir mejores espacios exteriores.',
+    'Productos, plantas y paisajismo para ordenar, simplificar y transformar tus espacios exteriores.',
   openGraph: {
     type: 'website',
     locale: 'es_VE',
     siteName: 'Garden World',
-    title: 'Garden World | Productos, plantas y paisajismo',
+    title: 'Garden World | Tu jardín. Tu diseño.',
     description:
-      'Objetos, vegetación y diseño para convertir el exterior en parte de la vida cotidiana.',
+      'Diseño, orden y naturaleza para vivir mejor tus espacios exteriores.',
   },
 };
 
