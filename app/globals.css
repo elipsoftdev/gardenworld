@@ -7,6 +7,7 @@
   --bone: #ece9df;
   --white: #fffef9;
   --sage: #9aad91;
+  --sage-pale: #e4eadf;
   --lime: #d9e498;
   --b2b: #c7d39d;
   --terracotta: #a55b3e;
@@ -818,8 +819,13 @@ button {
 
 .rollup-section {
   padding-block: var(--section-space);
-  background: var(--ink-deep);
-  color: var(--white);
+  background: var(--sage-pale);
+  color: var(--ink);
+}
+
+.rollup-section .eyebrow-light,
+.landscape-section .eyebrow-light {
+  color: var(--ink-soft);
 }
 
 .rollup-grid {
@@ -837,7 +843,7 @@ button {
 .rollup-lede {
   max-width: 38ch;
   margin: 2rem 0;
-  color: rgba(255, 255, 255, 0.66);
+  color: var(--ink-soft);
   font-size: 1rem;
 }
 
@@ -845,20 +851,20 @@ button {
   margin: 2.5rem 0 3rem;
   padding: 0;
   list-style: none;
-  border-top: 1px solid var(--line-light);
+  border-top: 1px solid var(--line);
 }
 
 .benefit-list li {
   padding: 0.75rem 0;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid var(--line-light);
+  border-bottom: 1px solid var(--line);
   font-size: 0.84rem;
 }
 
 .benefit-list li span {
   width: 3rem;
-  color: var(--lime);
+  color: var(--terracotta);
   font-size: 0.56rem;
   font-weight: 800;
 }
@@ -892,6 +898,19 @@ button {
   font-weight: 750;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+}
+
+.rollup-section .button-light,
+.landscape-section .button-light {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--white);
+}
+
+.rollup-section .button-light:hover,
+.landscape-section .button-light:hover {
+  background: transparent;
+  color: var(--ink);
 }
 
 .finish-layout {
@@ -1080,8 +1099,8 @@ button {
   min-height: 820px;
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(420px, 0.85fr);
-  background: var(--ink-deep);
-  color: var(--white);
+  background: var(--bone);
+  color: var(--ink);
 }
 
 .landscape-visual {
@@ -1122,7 +1141,7 @@ button {
 .landscape-copy > p:not(.eyebrow) {
   max-width: 36ch;
   margin-block: 2rem;
-  color: rgba(255, 255, 255, 0.66);
+  color: var(--ink-soft);
 }
 
 .landscape-copy ul {
@@ -1131,12 +1150,12 @@ button {
   display: grid;
   grid-template-columns: 1fr 1fr;
   list-style: none;
-  border-top: 1px solid var(--line-light);
+  border-top: 1px solid var(--line);
 }
 
 .landscape-copy li {
   padding: 0.65rem 0;
-  border-bottom: 1px solid var(--line-light);
+  border-bottom: 1px solid var(--line);
   font-size: 0.72rem;
 }
 
