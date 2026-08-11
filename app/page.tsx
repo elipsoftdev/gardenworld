@@ -70,8 +70,8 @@ const PILLARS = [
   {
     index: "01",
     kicker: "Products",
-    title: "Objetos para el exterior",
-    copy: "Piezas funcionales que ordenan el jardín y conviven con su arquitectura.",
+    title: "Diseño que pone orden",
+    copy: "Soluciones funcionales que resuelven lo cotidiano sin romper la estética de tu espacio.",
     href: "/productos/",
     image: "/images/ru-negro-43.webp",
     alt: "Roll Up en acabado negro mate instalado en pared",
@@ -80,16 +80,16 @@ const PILLARS = [
   {
     index: "02",
     kicker: "Plants",
-    title: "Vegetación seleccionada",
-    copy: "Una futura selección de plantas pensada según luz, lugar y forma de vivir.",
+    title: "La planta para tu lugar",
+    copy: "Vegetación pensada según la luz, el espacio y la forma en que quieres vivir tu jardín.",
     href: "/plantas/",
     className: "pillar-plants",
   },
   {
     index: "03",
     kicker: "Landscapes",
-    title: "Espacios diseñados",
-    copy: "Paisajismo que reúne vegetación, materiales y uso en una visión completa.",
+    title: "Tu exterior, como un todo",
+    copy: "Paisajismo que conecta vegetación, materiales y uso en una sola visión.",
     href: "/paisajismo/",
     className: "pillar-landscape",
   },
@@ -244,7 +244,7 @@ export default function Home() {
       last.focus();
     } else if (!event.shiftKey && document.activeElement === last) {
       event.preventDefault();
-      first.focus();
+      last.focus();
     }
   };
 
@@ -318,7 +318,7 @@ export default function Home() {
         <a className="button button-light mobile-menu-cta" href="#cotizar" onClick={closeMenu} tabIndex={menuOpen ? 0 : -1}>
           Cotizar con nosotros <span aria-hidden="true">↗</span>
         </a>
-        <p className="mobile-menu-foot">Objetos, plantas y espacios para vivir afuera.</p>
+        <p className="mobile-menu-foot">Diseño, orden y naturaleza para vivir mejor tus espacios exteriores.</p>
       </div>
 
       <main aria-hidden={menuOpen}>
@@ -326,15 +326,15 @@ export default function Home() {
           <div className="hero-copy">
             <p className="eyebrow hero-eyebrow">Productos · Plantas · Paisajismo</p>
             <h1 id="hero-title">
-              Vivir afuera,
-              <span>mejor pensado.</span>
+              Tu jardín.
+              <span>Tu diseño.</span>
             </h1>
             <p className="hero-intro">
-              Objetos, vegetación y diseño para convertir el exterior en parte de la vida cotidiana.
+              Soluciones que ordenan, simplifican y transforman tus espacios exteriores para disfrutarlos más.
             </p>
             <div className="hero-actions">
               <a className="button" href="#universo">
-                Explorar Garden World <span aria-hidden="true">↓</span>
+                Explorar soluciones <span aria-hidden="true">↓</span>
               </a>
               <a className="text-link" href="#roll-up">Conocer Roll Up <span aria-hidden="true">↗</span></a>
             </div>
@@ -346,7 +346,7 @@ export default function Home() {
             <div className="hero-visual-note">
               <span>Producto 01</span>
               <strong>Roll Up</strong>
-              <small>Orden para el exterior</small>
+              <small>Diseño que ordena</small>
             </div>
             <svg className="hero-rings" viewBox="0 0 180 180" aria-hidden="true">
               <circle cx="90" cy="90" r="68" /><circle cx="90" cy="90" r="48" /><circle cx="90" cy="90" r="28" />
@@ -357,10 +357,10 @@ export default function Home() {
 
         <section className="section intro-section" id="universo">
           <div className="container section-heading" data-reveal>
-            <p className="eyebrow">Un solo universo exterior</p>
-            <h2>Del objeto puntual<br />al espacio completo.</h2>
+            <p className="eyebrow">Diseño para vivir mejor afuera</p>
+            <h2>Tu espacio.<br />Tu manera de vivirlo.</h2>
             <p>
-              Garden World reúne tres maneras de mejorar el exterior: elegir lo que usas, lo que crece y cómo todo convive.
+              Productos, plantas y paisajismo pensados para que cada exterior se sienta más ordenado, funcional y propio.
             </p>
           </div>
           <div className="container pillar-grid">
@@ -391,19 +391,19 @@ export default function Home() {
         <section className="rollup-section" id="roll-up">
           <div className="container rollup-grid">
             <div className="rollup-copy" data-reveal>
-              <p className="eyebrow eyebrow-light">Producto protagonista · Roll Up</p>
-              <h2>La manguera ya no va en el piso.</h2>
+              <p className="eyebrow eyebrow-light">Roll Up · Orden con diseño</p>
+              <h2>Todo en su lugar.<br />También afuera.</h2>
               <p className="rollup-lede">
-                Una pieza de metal que transforma algo cotidiano en una decisión de arquitectura exterior.
+                Roll Up mantiene la manguera ordenada, accesible y fuera del camino con una pieza que se integra al diseño de tu exterior.
               </p>
               <ul className="benefit-list" aria-label="Beneficios de Roll Up">
-                <li><span>01</span>Una pieza</li>
-                <li><span>02</span>Sin mecanismos</li>
-                <li><span>03</span>Metal</li>
+                <li><span>01</span>Orden visible</li>
+                <li><span>02</span>Uso simple</li>
+                <li><span>03</span>Estructura metálica</li>
                 <li><span>04</span>Cinco acabados</li>
-                <li><span>05</span>Exterior</li>
+                <li><span>05</span>Diseñado para exterior</li>
               </ul>
-              <a className="button button-light" href="/productos/">Ver producto <span aria-hidden="true">↗</span></a>
+              <a className="button button-light" href="/productos/">Conocer Roll Up <span aria-hidden="true">↗</span></a>
             </div>
             <div className="rollup-media" data-reveal>
               <img src="/images/ru-corten-43.webp" alt="Roll Up en acabado corten con manguera enrollada" loading="lazy" decoding="async" />
@@ -416,9 +416,9 @@ export default function Home() {
           <div className="container section-heading section-heading-row" data-reveal>
             <div>
               <p className="eyebrow">Roll Up · Acabados</p>
-              <h2>Una forma.<br />Cinco acabados.</h2>
+              <h2>Una forma.<br />Tu acabado.</h2>
             </div>
-            <p>La misma pieza cambia de presencia para acompañar la fachada, el jardín y sus materiales.</p>
+            <p>Elige el acabado que mejor se integra con los materiales, tonos y carácter de tu espacio.</p>
           </div>
           <div className="container finish-layout" data-reveal>
             <div className="finish-image">
@@ -466,9 +466,9 @@ export default function Home() {
           <div className="container plants-grid">
             <div className="plants-copy" data-reveal>
               <p className="eyebrow">Plants · Próxima colección</p>
-              <h2>La planta correcta empieza por el lugar.</h2>
+              <h2>La planta correcta cambia el espacio.</h2>
               <p>
-                Preparamos una selección para explorar según la luz y el tipo de espacio, conectada con nuestro servicio de paisajismo.
+                Preparamos una selección según luz, ubicación y uso para que elegir sea más fácil y el resultado se sienta natural.
               </p>
               <div className="plant-filters" aria-label="Categorías futuras de plantas">
                 {['Sol', 'Sombra', 'Interior', 'Exterior', 'Terrazas'].map((item) => <span key={item}>{item}</span>)}
@@ -488,8 +488,8 @@ export default function Home() {
           </div>
           <div className="landscape-copy" data-reveal>
             <p className="eyebrow eyebrow-light">Landscapes · Servicio</p>
-            <h2>Diseñamos<br />el conjunto.</h2>
-            <p>Vegetación, materiales, distribución y ejecución pensados como una sola experiencia.</p>
+            <h2>Tu exterior.<br />Una sola visión.</h2>
+            <p>Vegetación, materiales, distribución y ejecución pensados para que todo se sienta conectado.</p>
             <ul>
               <li>Diseño</li><li>Vegetación</li><li>Materiales</li><li>Distribución</li><li>Ejecución</li>
             </ul>
@@ -501,9 +501,9 @@ export default function Home() {
           <div className="container section-heading section-heading-row" data-reveal>
             <div>
               <p className="eyebrow">Proyectos · Archivo en preparación</p>
-              <h2>Espacios que contarán la historia completa.</h2>
+              <h2>Ideas que se convierten en espacios.</h2>
             </div>
-            <p>Esta sección alojará casos documentados con ubicación, tipología, productos, plantas y alcance del servicio.</p>
+            <p>Aquí reuniremos proyectos para mostrar cómo productos, plantas y paisajismo transforman cada exterior.</p>
           </div>
           <div className="container project-grid">
             <a href="/proyectos/" className="project project-large" data-reveal>
@@ -521,7 +521,7 @@ export default function Home() {
           <div className="container professional-grid" data-reveal>
             <div>
               <p className="eyebrow">Garden World · Profesionales</p>
-              <h2>Para quienes diseñan y construyen el exterior.</h2>
+              <h2>Tu proyecto. Nuestro soporte.</h2>
             </div>
             <div>
               <p>Atención para arquitectos, paisajistas, desarrolladores, hoteles, distribuidores y mayoristas.</p>
@@ -534,8 +534,8 @@ export default function Home() {
           <div className="container quote-grid">
             <div className="quote-copy" data-reveal>
               <p className="eyebrow">Cotización · Contacto</p>
-              <h2>¿Qué quieres llevar afuera?</h2>
-              <p>Selecciona un área y preparamos el mensaje. La conversación continúa directamente en WhatsApp.</p>
+              <h2>Cuéntanos qué quieres transformar.</h2>
+              <p>Elige el área y preparamos un mensaje con lo esencial. Tú continúas la conversación directamente por WhatsApp.</p>
               <div className="quote-note">
                 <span>01</span><p>Completa solo lo necesario.</p>
                 <span>02</span><p>Revisa el mensaje preparado.</p>
@@ -598,7 +598,7 @@ export default function Home() {
         <div className="container footer-top">
           <div className="footer-brand">
             <Brand inverse />
-            <p>Objetos, plantas y espacios para vivir afuera.</p>
+            <p>Diseño, orden y naturaleza para vivir mejor tus espacios exteriores.</p>
           </div>
           <div className="footer-links">
             <div><p>Explorar</p>{NAV_ITEMS.slice(0, 3).map((item) => <a key={item.href} href={item.href}>{item.label}</a>)}</div>
