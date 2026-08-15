@@ -1,13 +1,11 @@
 type FuturePageProps = {
-  area: string;
   title: string;
   description: string;
-  next: string;
   image?: string;
   references?: Array<{ sku: string; label: string }>;
 };
 
-export default function FuturePage({ area, title, description, next, image, references }: FuturePageProps) {
+export default function FuturePage({ title, description, image, references }: FuturePageProps) {
   return (
     <main className="future-page">
       <header className="future-nav">
@@ -18,34 +16,33 @@ export default function FuturePage({ area, title, description, next, image, refe
       </header>
       <section className="future-hero">
         <div className="future-copy">
-          <p className="eyebrow">Garden World · {area}</p>
+          <p className="eyebrow">Bases de mangueras Garden World</p>
           <h1>{title}</h1>
           <p>{description}</p>
-          <span className="future-status">Fase 2 · Contenido en preparación</span>
           <div className="future-actions">
             <a href="/" className="button">Volver a la Home <span aria-hidden="true">←</span></a>
-            <a href="/#cotizar" className="text-link">Conversar ahora <span aria-hidden="true">↗</span></a>
+            <a href="/#cotizar" className="text-link">Cotizar <span aria-hidden="true">↗</span></a>
           </div>
         </div>
         <div className="future-media">
           {image ? (
-            <img src={image} alt="Roll Up, producto de Garden World" />
+            <img src={image} alt="Base para manguera Garden World" />
           ) : (
-            <div className="future-placeholder" aria-label={area} data-content-status="pending">
-              <span>Archivo visual</span>
-              <strong>{area}</strong>
+            <div className="future-placeholder" aria-label="Imagen pendiente" data-content-status="pending">
+              <span>Imagen pendiente</span>
+              <strong>GW-IMG-BM-01</strong>
             </div>
           )}
-          <p><span>Siguiente fase</span>{next}</p>
+          <p><span>Bases Garden World</span>Selecciona un acabado y cotiza directamente por WhatsApp.</p>
           {references && (
             <div className="future-references">
-              <p>Referencias existentes preservadas</p>
+              <p>Acabados disponibles</p>
               <ul>
                 {references.map((reference) => (
                   <li key={reference.sku}><span>{reference.label}</span><code>{reference.sku}</code></li>
                 ))}
               </ul>
-              <small>La disponibilidad y las especificaciones se confirmarán en la ficha de Fase 2.</small>
+              <small>La disponibilidad se confirma directamente por WhatsApp.</small>
             </div>
           )}
         </div>

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import FuturePage from "../components/FuturePage";
+import MvpRedirect from "../components/MvpRedirect";
 
-export const metadata: Metadata = { title: "Proyectos | Garden World" };
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default function ProjectsPage() {
-  return <FuturePage area="Projects" title="El exterior, documentado." description="Este archivo mostrará proyectos reales cuando existan fotografías, ubicación, tipología y alcance confirmados." next="Casos editoriales con productos, plantas y servicios utilizados." />;
+  return <MvpRedirect />;
 }

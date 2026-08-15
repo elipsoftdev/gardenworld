@@ -1,26 +1,24 @@
 import type { Metadata } from "next";
 import FuturePage from "../components/FuturePage";
 
-export const metadata: Metadata = { title: "Productos | Garden World" };
+export const metadata: Metadata = {
+  title: "Bases para mangueras Garden World | Acabados y diseño",
+  description: "Bases para mangueras Garden World en cinco acabados para ordenar e integrar funcionalidad y diseño en tu jardín.",
+  alternates: { canonical: "/productos/" },
+};
 
 export default function ProductsPage() {
   return (
     <FuturePage
-      area="Products"
-      title="Objetos para el exterior."
-      description="Roll Up abre una colección de productos donde función, material y arquitectura comparten el mismo criterio."
-      next="Ficha completa de Roll Up, accesorios y arquitectura de productos."
+      title="Bases de mangueras Garden World."
+      description="Una familia de bases para mangueras diseñada para ordenar el uso cotidiano y acompañar el exterior."
       image="/images/ru-piedra-45.webp"
       references={[
-        { label: "Roll Up · Blanco", sku: "GW-RU-BLC" },
-        { label: "Roll Up · Piedra", sku: "GW-RU-PDR" },
-        { label: "Roll Up · Inoxidable", sku: "GW-RU-INX" },
-        { label: "Roll Up · Corten", sku: "GW-RU-COR" },
-        { label: "Roll Up · Negro mate", sku: "GW-RU-NGR" },
-        { label: "Nylon de corte", sku: "GW-NYL-500" },
-        { label: "Malla de sombra", sku: "GW-MAL-2100" },
-        { label: "Tutores de bambú", sku: "GW-TUT-50" },
-        { label: "Grapas de anclaje", sku: "GW-GRP-100" },
+        { label: "Blanco", sku: "GW-RU-BLC" },
+        { label: "Piedra", sku: "GW-RU-PDR" },
+        { label: "Inoxidable", sku: "GW-RU-INX" },
+        { label: "Corten", sku: "GW-RU-COR" },
+        { label: "Negro mate", sku: "GW-RU-NGR" },
       ]}
     />
   );
