@@ -571,6 +571,194 @@ button {
   padding-block: var(--section-space);
 }
 
+.before-after-section {
+  padding-block: clamp(5rem, 9vw, 9rem);
+  background: var(--bone);
+}
+
+.before-after-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 0.55fr);
+  gap: 2rem clamp(3rem, 8vw, 11rem);
+  margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
+}
+
+.before-after-heading .eyebrow {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.before-after-heading h2 {
+  max-width: 10ch;
+  margin: 0;
+  font-size: clamp(3.15rem, 6vw, 7rem);
+  line-height: 0.92;
+  letter-spacing: -0.055em;
+}
+
+.before-after-heading > p:last-child {
+  align-self: end;
+  max-width: 38ch;
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.before-after-frame {
+  max-width: 1240px;
+}
+
+.before-after-slider {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #d1c6b7;
+  cursor: col-resize;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.before-after-slider:focus-visible {
+  outline-offset: 6px;
+}
+
+.before-after-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.before-after-image {
+  max-width: none;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+}
+
+.before-after-before {
+  transition: clip-path 0ms;
+}
+
+.before-after-slider.is-animating .before-after-before,
+.before-after-slider.is-animating .before-after-divider {
+  transition: clip-path 850ms cubic-bezier(0.4, 0, 0.2, 1), left 850ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.before-after-divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  width: 1px;
+  background: rgba(255, 254, 249, 0.9);
+  box-shadow: 0 0 18px rgba(12, 41, 34, 0.28);
+  transform: translateX(-50%);
+}
+
+.before-after-handle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  border: 1px solid rgba(23, 56, 47, 0.24);
+  border-radius: 50%;
+  background: rgba(255, 254, 249, 0.96);
+  box-shadow: 0 9px 24px rgba(12, 41, 34, 0.16);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 2rem;
+  line-height: 1;
+  transform: translate(-50%, -50%);
+}
+
+.before-after-handle span {
+  transform: translateY(-0.07em);
+}
+
+.before-after-label {
+  position: absolute;
+  z-index: 3;
+  top: clamp(0.75rem, 2vw, 1.5rem);
+  padding: 0.45rem 0.62rem;
+  background: rgba(12, 41, 34, 0.68);
+  color: var(--white);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.before-after-label-before { left: clamp(0.75rem, 2vw, 1.5rem); }
+.before-after-label-after { right: clamp(0.75rem, 2vw, 1.5rem); }
+
+.before-after-caption {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-top: 1rem;
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.before-after-caption strong {
+  color: var(--ink);
+}
+
+@media (max-width: 700px) {
+  .before-after-heading {
+    display: block;
+    margin-bottom: 2.25rem;
+  }
+
+  .before-after-heading .eyebrow {
+    margin-bottom: 1.15rem;
+  }
+
+  .before-after-heading h2 {
+    font-size: clamp(3rem, 14vw, 4.6rem);
+  }
+
+  .before-after-heading > p:last-child {
+    margin-top: 1.25rem;
+  }
+
+  .before-after-slider {
+    aspect-ratio: 1.28 / 1;
+  }
+
+  .before-after-image {
+    object-position: center;
+  }
+
+  .before-after-handle {
+    width: 48px;
+    height: 48px;
+  }
+
+  .before-after-caption {
+    display: grid;
+    gap: 0.3rem;
+    font-size: 0.68rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .before-after-before,
+  .before-after-divider {
+    transition: none !important;
+  }
+}
+
 .intro-section,
 .finishes-section,
 .projects-section {

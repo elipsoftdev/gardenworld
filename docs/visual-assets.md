@@ -12,4 +12,4 @@
 | GW-IMG-BM-07 | Productos | Antes | Manguera desordenada en el área de uso | Explicar el problema cotidiano | 3:2 | Encuadre del área | `gw-img-bm-07.webp` | Pendiente |
 | GW-IMG-BM-08 | Productos | Después | La misma zona organizada con una base Garden World | Explicar el resultado de uso | 3:2 | Encuadre equivalente a BM-07 | `gw-img-bm-08.webp` | Pendiente |
 
-Las imágenes existentes de acabados se reutilizan en el MVP. Esta lista no autoriza a publicar especificaciones ni contenido no confirmado.
+Las imágenes existentes de los dos acabados actuales —plata de acero inoxidable y negro mate— se reutilizan en el MVP. Esta lista no autoriza a publicar especificaciones ni contenido no confirmado.
