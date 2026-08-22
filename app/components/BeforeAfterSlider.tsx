@@ -107,7 +107,7 @@ export default function BeforeAfterSlider({
       className={`before-after-slider${isAnimating ? " is-animating" : ""} ${className}`.trim()}
       role="slider"
       tabIndex={0}
-      aria-label="Comparación antes y después del soporte Garden World Roll Up"
+      aria-label="Comparación antes y después de una base para manguera Garden World"
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={Math.round(position)}

@@ -2,20 +2,20 @@ import type { Metadata } from "next";
 import FuturePage from "../components/FuturePage";
 
 export const metadata: Metadata = {
-  title: "Bases para mangueras Garden World | Acabados y diseño",
-  description: "Bases para mangueras Garden World en dos acabados para ordenar e integrar funcionalidad y diseño en tu jardín.",
+  title: "Base Premium Silver y Base Black | Garden World",
+  description: "Dos bases para mangueras Garden World: Base Premium Silver en acero inoxidable y Base Black en acero al carbono.",
   alternates: { canonical: "/productos/" },
 };
 
 export default function ProductsPage() {
   return (
     <FuturePage
-      title="Bases de mangueras Garden World."
-      description="Una familia de bases para mangueras diseñada para ordenar el uso cotidiano y acompañar el exterior."
-      image="/images/ru-inox-45.webp"
+      title="Elige tu estilo."
+      description="Conoce las dos bases Garden World disponibles actualmente y cotiza la que mejor se integra con tu exterior."
+      image="/images/products/premium-silver-garden.webp"
       references={[
-        { label: "Plata de acero inoxidable", sku: "GW-RU-INX" },
-        { label: "Negro mate", sku: "GW-RU-NGR" },
+        { label: "Base Premium Silver", sku: "Acero inoxidable 304 · 3 mm" },
+        { label: "Base Black", sku: "Acero al carbono · 3 mm" },
       ]}
     />
   );

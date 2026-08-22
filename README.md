@@ -1,6 +1,6 @@
 # GardenWorld — sitio Next.js
 
-Roll up (soporte de manguera, 5 acabados) + consumibles de jardinería.
+Bases para mangueras Garden World y diseño para exterior.
 WhatsApp: **+58 414-3228003** — Atención: **Sr. Héctor Guevara**.
 
 ## 🚀 Publicar en GitHub Pages (recomendado — automático)
@@ -60,7 +60,7 @@ app/
   layout.tsx       → fuentes (Google Fonts) + metadata SEO
   globals.css      → sistema de diseño completo
 public/
-  images/          → las 15 fotos de Roll up (5 acabados × 3 recortes cada una)
+  images/          → activos visuales de las bases Garden World
 .github/workflows/
   deploy.yml        → publica solo en cada push a main
 ```
