@@ -2,12 +2,12 @@
 
 import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import BeforeAfterSlider from "./components/BeforeAfterSlider";
+import ProductGallery, { type ProductGalleryImage } from "./components/ProductGallery";
 
 const WHATSAPP_NUMBER = "584143228003";
 const PRODUCT_NAME = "Base para manguera Garden World";
 
 type ProductKey = "premium-silver" | "black";
-type ProductImage = { src: string; alt: string; label: string };
 type Product = {
   key: ProductKey;
   name: string;
@@ -16,7 +16,7 @@ type Product = {
   regularPrice: string;
   promotionalPrice: string;
   color: string;
-  images: ProductImage[];
+  images: ProductGalleryImage[];
 };
 
 const PRODUCTS: Product[] = [
@@ -29,9 +29,9 @@ const PRODUCTS: Product[] = [
     promotionalPrice: "US$140",
     color: "#c7c8c4",
     images: [
-      { src: "/images/products/premium-silver-isolated.webp", alt: "Base Premium Silver Garden World en acero inoxidable, vista frontal", label: "Vista frontal" },
-      { src: "/images/products/premium-silver-garden.webp", alt: "Base Premium Silver Garden World instalada con manguera azul en un jardín", label: "En jardín" },
-      { src: "/images/products/premium-silver-wood-garden.webp", alt: "Base Premium Silver Garden World instalada con manguera azul frente a una pared de madera", label: "Detalle exterior" },
+      { src: "/images/products/premium-silver-isolated.webp", alt: "Base Premium Silver Garden World en acero inoxidable, vista frontal", label: "Vista frontal", fit: "contain" },
+      { src: "/images/products/premium-silver-garden.webp", alt: "Base Premium Silver Garden World instalada con manguera azul en un jardín", label: "En jardín", fit: "cover" },
+      { src: "/images/products/premium-silver-wood-garden.webp", alt: "Base Premium Silver Garden World instalada con manguera azul frente a una pared de madera", label: "Detalle exterior", fit: "cover" },
     ],
   },
   {
@@ -43,11 +43,11 @@ const PRODUCTS: Product[] = [
     promotionalPrice: "US$126",
     color: "#292b28",
     images: [
-      { src: "/images/products/black-isolated.webp", alt: "Base Black Garden World, vista frontal del producto", label: "Vista frontal" },
-      { src: "/images/products/black-orange-hose.webp", alt: "Base Black Garden World instalada con manguera naranja", label: "Instalada" },
-      { src: "/images/products/black-dark-hose.webp", alt: "Base Black Garden World instalada con manguera negra en ambiente oscuro", label: "Ambiente oscuro" },
-      { src: "/images/products/black-water-detail.webp", alt: "Detalle del acabado negro de Base Black Garden World con gotas de agua", label: "Detalle de acabado" },
-      { src: "/images/products/black-garden-tools.webp", alt: "Base Black Garden World instalada con manguera azul y herramientas de jardín", label: "En jardín" },
+      { src: "/images/products/black-isolated.webp", alt: "Base Black Garden World, vista frontal del producto", label: "Vista frontal", fit: "contain" },
+      { src: "/images/products/black-orange-hose.webp", alt: "Base Black Garden World instalada con manguera naranja", label: "Instalada", fit: "cover" },
+      { src: "/images/products/black-dark-hose.webp", alt: "Base Black Garden World instalada con manguera negra en ambiente oscuro", label: "Ambiente oscuro", fit: "cover" },
+      { src: "/images/products/black-water-detail.webp", alt: "Detalle del acabado negro de Base Black Garden World con gotas de agua", label: "Detalle de acabado", fit: "cover" },
+      { src: "/images/products/black-garden-tools.webp", alt: "Base Black Garden World instalada con manguera azul y herramientas de jardín", label: "En jardín", fit: "cover" },
     ],
   },
 ];
@@ -75,14 +75,12 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [inlineWhatsAppVisible, setInlineWhatsAppVisible] = useState(false);
   const [productKey, setProductKey] = useState<ProductKey>("premium-silver");
-  const [imageIndex, setImageIndex] = useState(0);
   const [quantity, setQuantity] = useState("1");
   const [city, setCity] = useState("");
   const [buyer, setBuyer] = useState("Hogar");
   const menuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const selectedProduct = PRODUCTS.find((product) => product.key === productKey) ?? PRODUCTS[0];
-  const selectedImage = selectedProduct.images[imageIndex] ?? selectedProduct.images[0];
   const productWhatsApp = makeWhatsAppLink(`Hola Garden World, quiero cotizar la ${selectedProduct.name}. ¿Me comparten disponibilidad y próximos pasos?`);
   const quoteMessage = useMemo(() => {
     const lines = ["Hola Garden World,", "", "Quiero cotizar:", `· Producto: ${PRODUCT_NAME}`, `· Modelo: ${selectedProduct.name}`, `· Cantidad: ${quantity || "1"}`];
@@ -116,7 +114,7 @@ export default function Home() {
     return () => { document.body.style.overflow = previousOverflow; };
   }, [menuOpen]);
 
-  const selectProduct = (nextProduct: ProductKey) => { setProductKey(nextProduct); setImageIndex(0); };
+  const selectProduct = (nextProduct: ProductKey) => { setProductKey(nextProduct); };
   const closeMenu = () => { setMenuOpen(false); window.requestAnimationFrame(() => menuButtonRef.current?.focus()); };
   const handleMenuKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Escape") { event.preventDefault(); closeMenu(); return; }
@@ -146,7 +144,7 @@ export default function Home() {
     <main aria-hidden={menuOpen}>
       <section className="hero" aria-labelledby="hero-title"><div className="hero-copy"><p className="eyebrow hero-eyebrow">Bases de mangueras Garden World</p><h1 id="hero-title">Tu mundo.<span>Tu jardín.</span></h1><p className="hero-intro">Diseño, orden y funcionalidad para disfrutar mejor los espacios exteriores.</p><div className="hero-actions"><a className="button" href="#estilos">Conocer nuestras bases <span aria-hidden="true">↓</span></a><a className="text-link" href="#cotizar">Cotizar <span aria-hidden="true">↗</span></a></div></div><div className="hero-visual" aria-label="Base para manguera Garden World"><div className="hero-image-wrap"><img src="/images/tu-mundo-tu-jardin.jpeg" alt="Base para manguera Garden World instalada entre plantas y flores en un jardín exterior" /></div><div className="hero-visual-note"><span>Producto principal</span><strong>Bases</strong><small>Diseño que ordena</small></div><svg className="hero-rings" viewBox="0 0 180 180" aria-hidden="true"><circle cx="90" cy="90" r="68" /><circle cx="90" cy="90" r="48" /><circle cx="90" cy="90" r="28" /></svg></div><p className="hero-side-note">Garden World · Venezuela</p></section>
       <section className="before-after-section" aria-labelledby="before-after-title"><div className="container before-after-heading" data-reveal><p className="eyebrow">Diseño que pone orden</p><h2 id="before-after-title">El orden también se diseña.</h2><p>Una solución pensada para que lo que necesitas esté en su lugar y tu jardín siga siendo parte de lo que quieres ver.</p></div><div className="container before-after-frame" data-reveal><BeforeAfterSlider before="/images/before-after/garden-before.webp" after="/images/before-after/garden-after.webp" beforeAlt="Manguera azul desorganizada sobre el piso de un jardín antes de instalar una base Garden World." afterAlt="Manguera azul organizada sobre una base Garden World instalada en una pared exterior de jardín." /><div className="before-after-caption"><span>Desliza. Mira la diferencia.</span><strong>Menos desorden. Más jardín.</strong></div></div></section>
-      <section className="section finishes-section" id="estilos" aria-labelledby="styles-title"><div className="container section-heading section-heading-row" data-reveal><div><p className="eyebrow">Bases Garden World</p><h2 id="styles-title">Elige tu estilo.</h2></div><p>Dos bases para integrar orden, material y carácter en tu espacio exterior.</p></div><div className="container finish-layout" data-reveal><div className="finish-image"><img key={selectedImage.src} src={selectedImage.src} alt={selectedImage.alt} className="is-active" decoding="async" /><span className="finish-counter">{selectedImage.label}</span></div><div className="finish-panel"><div className="finish-current"><p>Modelo seleccionado</p><h3>{selectedProduct.name}</h3><span>{selectedProduct.description}</span></div><ul className="product-specs" aria-label={`Características de ${selectedProduct.name}`}>{selectedProduct.specs.map((specification) => <li key={specification}>{specification}</li>)}</ul><div className="price-block" aria-label={`Precio de ${selectedProduct.name}`}><del>{selectedProduct.regularPrice}</del><strong>{selectedProduct.promotionalPrice}</strong><span>Delivery gratis<sup>*</sup></span><small>Pago a tasa BCV</small><p><sup>*</sup>Delivery gratis en Gran Caracas.</p></div><div className="finish-options" role="group" aria-label="Elegir modelo de base">{PRODUCTS.map((product) => <button type="button" key={product.key} className={product.key === productKey ? "is-active" : ""} aria-pressed={product.key === productKey} onClick={() => selectProduct(product.key)}><span className="finish-swatch" style={{ backgroundColor: product.color }} aria-hidden="true" /><span>{product.name}</span></button>)}</div><div className="product-gallery" aria-label={`Galería de ${selectedProduct.name}`}>{selectedProduct.images.map((image, index) => <button type="button" key={image.src} className={index === imageIndex ? "is-active" : ""} aria-label={`Ver ${image.label} de ${selectedProduct.name}`} aria-pressed={index === imageIndex} onClick={() => setImageIndex(index)}><img src={image.src} alt="" loading="lazy" decoding="async" /></button>)}</div><a className="button button-wide" href={productWhatsApp} target="_blank" rel="noopener noreferrer" data-whatsapp-cta><WhatsAppIcon /> Cotiza esta base <span aria-hidden="true">↗</span></a></div></div></section>
+<section className="section finishes-section" id="estilos" aria-labelledby="styles-title"><div className="container section-heading section-heading-row" data-reveal><div><p className="eyebrow">Bases Garden World</p><h2 id="styles-title">Elige tu estilo.</h2></div><p>Dos bases para integrar orden, material y carácter en tu espacio exterior.</p></div><div className="container finish-layout" data-reveal><ProductGallery key={selectedProduct.key} productName={selectedProduct.name} images={selectedProduct.images} /><div className="finish-panel"><div className="finish-current"><p>Modelo seleccionado</p><h3>{selectedProduct.name}</h3><span>{selectedProduct.description}</span></div><ul className="product-specs" aria-label={`Características de ${selectedProduct.name}`}>{selectedProduct.specs.map((specification) => <li key={specification}>{specification}</li>)}</ul><div className="price-block" aria-label={`Precio de ${selectedProduct.name}`}><del>{selectedProduct.regularPrice}</del><strong>{selectedProduct.promotionalPrice}</strong><span>Delivery gratis<sup>*</sup></span><small>Pago a tasa BCV</small><p><sup>*</sup>Delivery gratis en Gran Caracas.</p></div><div className="finish-options" role="group" aria-label="Elegir modelo de base">{PRODUCTS.map((product) => <button type="button" key={product.key} className={product.key === productKey ? "is-active" : ""} aria-pressed={product.key === productKey} onClick={() => selectProduct(product.key)}><span className="finish-swatch" style={{ backgroundColor: product.color }} aria-hidden="true" /><span>{product.name}</span></button>)}</div><a className="button button-wide" href={productWhatsApp} target="_blank" rel="noopener noreferrer" data-whatsapp-cta><WhatsAppIcon /> Cotiza esta base <span aria-hidden="true">↗</span></a></div></div></section>
       <section className="quote-section" id="cotizar"><div className="container quote-grid"><div className="quote-copy" data-reveal><p className="eyebrow">Cotización · Contacto</p><h2>Cuéntanos qué necesitas.</h2><p>Selecciona una base y cantidad. La conversación continúa directamente por WhatsApp.</p><div className="quote-note"><span>01</span><p>Elige tu estilo.</p><span>02</span><p>Completa solo lo necesario.</p><span>03</span><p>Habla con un asesor.</p></div></div><form className="quote-form" onSubmit={handleSubmit} data-reveal><label><span>Producto</span><input value={PRODUCT_NAME} readOnly aria-readonly="true" /></label><div className="quote-form-row"><label><span>Modelo</span><select value={productKey} onChange={(event) => selectProduct(event.target.value as ProductKey)}>{PRODUCTS.map((product) => <option value={product.key} key={product.key}>{product.name}</option>)}</select></label><label><span>Cantidad</span><input type="number" min="1" inputMode="numeric" value={quantity} onChange={(event) => setQuantity(event.target.value)} /></label></div><div className="quote-form-row"><label><span>Ciudad <small>(opcional)</small></span><input type="text" autoComplete="address-level2" placeholder="Tu ciudad" value={city} onChange={(event) => setCity(event.target.value)} /></label><label><span>Tipo de cliente</span><select value={buyer} onChange={(event) => setBuyer(event.target.value)}><option>Hogar</option><option>Diseño exterior</option><option>Hotel / Desarrollo</option><option>Distribución / Mayorista</option></select></label></div><div className="message-preview" aria-live="polite"><span>Mensaje preparado</span><p>{quoteMessage}</p></div><button className="button button-wide" type="submit" data-whatsapp-cta><WhatsAppIcon /> Habla con un asesor <span aria-hidden="true">↗</span></button><p className="form-fineprint">No guardamos estos datos. El mensaje se abre en WhatsApp y tú decides si enviarlo.</p></form></div></section>
     </main>
     <footer className="site-footer" aria-hidden={menuOpen}><div className="container footer-top"><div className="footer-brand"><Brand inverse /><p>Diseño, orden y funcionalidad para tu jardín.</p></div><div className="footer-links"><div><p>Explorar</p>{NAV_ITEMS.map((item) => <a key={item.label} href={item.href}>{item.label}</a>)}</div><div><p>Atención</p><a href={makeWhatsAppLink("Hola Garden World, quiero cotizar una base para manguera.")} target="_blank" rel="noopener noreferrer">WhatsApp ↗</a><span>Venezuela</span></div></div></div><div className="container footer-bottom"><span>© {new Date().getFullYear()} Garden World</span><span>Bases Garden World</span></div></footer>
