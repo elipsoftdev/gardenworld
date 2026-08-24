@@ -35,8 +35,10 @@ export default function ProductGallery({ productName, images }: ProductGalleryPr
   const [autoplayCycle, setAutoplayCycle] = useState(0);
   const [zoom, setZoom] = useState(MIN_ZOOM);
   const [pan, setPan] = useState<Point>({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const touchStartX = useRef<number | null>(null);
   const resumeTimer = useRef<number | null>(null);
@@ -50,22 +52,51 @@ export default function ProductGallery({ productName, images }: ProductGalleryPr
   const resetView = useCallback(() => {
     zoomRef.current = MIN_ZOOM;
     panRef.current = { x: 0, y: 0 };
+    setIsDragging(false);
     setZoom(MIN_ZOOM);
     setPan({ x: 0, y: 0 });
   }, []);
 
+  const getPanBounds = useCallback((forZoom = zoomRef.current) => {
+    const viewport = viewportRef.current;
+    const image = imageRef.current;
+    if (!viewport || !image) return { x: 0, y: 0 };
+
+    return {
+      x: Math.max(0, (image.offsetWidth * forZoom - viewport.clientWidth) / 2),
+      y: Math.max(0, (image.offsetHeight * forZoom - viewport.clientHeight) / 2),
+    };
+  }, []);
+
+  const clampPan = useCallback((point: Point, forZoom = zoomRef.current) => {
+    const bounds = getPanBounds(forZoom);
+    return {
+      x: Math.min(bounds.x, Math.max(-bounds.x, point.x)),
+      y: Math.min(bounds.y, Math.max(-bounds.y, point.y)),
+    };
+  }, [getPanBounds]);
+
   const updatePan = useCallback((next: Point | ((current: Point) => Point)) => {
     setPan((current) => {
       const resolved = typeof next === "function" ? next(current) : next;
-      panRef.current = resolved;
-      return resolved;
+      const bounded = clampPan(resolved);
+      panRef.current = bounded;
+      return bounded;
     });
-  }, []);
+  }, [clampPan]);
 
   const applyZoom = useCallback((requestedZoom: number, focalPoint?: Point) => {
     const currentZoom = zoomRef.current;
     const nextZoom = clampZoom(requestedZoom);
     if (nextZoom === currentZoom) return;
+
+    if (nextZoom === MIN_ZOOM) {
+      resetView();
+      return;
+    }
+
+    zoomRef.current = nextZoom;
+    setZoom(nextZoom);
 
     if (focalPoint && viewportRef.current) {
       const bounds = viewportRef.current.getBoundingClientRect();
@@ -76,11 +107,10 @@ export default function ProductGallery({ productName, images }: ProductGalleryPr
         x: current.x - offsetX * (scaleRatio - 1),
         y: current.y - offsetY * (scaleRatio - 1),
       }));
+    } else {
+      updatePan((current) => current);
     }
-
-    zoomRef.current = nextZoom;
-    setZoom(nextZoom);
-  }, [updatePan]);
+  }, [resetView, updatePan]);
 
   const changeImage = useCallback((nextIndex: number | ((currentIndex: number) => number)) => {
     resetView();
@@ -136,6 +166,19 @@ export default function ProductGallery({ productName, images }: ProductGalleryPr
   useEffect(() => () => {
     if (resumeTimer.current !== null) window.clearTimeout(resumeTimer.current);
   }, []);
+
+  useEffect(() => {
+    if (!isModalOpen) return;
+    const keepPanInBounds = () => {
+      if (zoomRef.current === MIN_ZOOM) {
+        resetView();
+        return;
+      }
+      updatePan((current) => current);
+    };
+    window.addEventListener("resize", keepPanInBounds);
+    return () => window.removeEventListener("resize", keepPanInBounds);
+  }, [isModalOpen, resetView, updatePan]);
 
   useEffect(() => {
     if (!isModalOpen) return;
@@ -229,11 +272,13 @@ export default function ProductGallery({ productName, images }: ProductGalleryPr
       pinchRef.current = { distance: distanceBetween(first, second), zoom: zoomRef.current };
       dragStartRef.current = null;
       swipeStartRef.current = null;
+      setIsDragging(false);
       return;
     }
 
     if (zoomRef.current > MIN_ZOOM) {
       dragStartRef.current = { point, pan: panRef.current };
+      setIsDragging(true);
     } else if (event.pointerType === "touch") {
       swipeStartRef.current = point;
     }
@@ -249,8 +294,7 @@ export default function ProductGallery({ productName, images }: ProductGalleryPr
       const pinch = pinchRef.current;
       if (!pinch) return;
       const nextZoom = clampZoom(pinch.zoom * (distanceBetween(points[0], points[1]) / pinch.distance));
-      zoomRef.current = nextZoom;
-      setZoom(nextZoom);
+      applyZoom(nextZoom);
       return;
     }
 
@@ -280,6 +324,7 @@ export default function ProductGallery({ productName, images }: ProductGalleryPr
     if (pointersRef.current.size < 2) pinchRef.current = null;
     dragStartRef.current = null;
     swipeStartRef.current = null;
+    setIsDragging(false);
   };
 
   const handleLightboxWheel = (event: WheelEvent<HTMLDivElement>) => {
@@ -301,7 +346,7 @@ export default function ProductGallery({ productName, images }: ProductGalleryPr
         {images.length > 1 && <button className="lightbox-nav lightbox-previous" type="button" onClick={() => moveBy(-1)} aria-label="Ver imagen anterior">←</button>}
         <div
           ref={viewportRef}
-          className={`lightbox-viewport${zoom > MIN_ZOOM ? " is-zoomed" : ""}`}
+          className={`lightbox-viewport${zoom > MIN_ZOOM ? " is-zoomed" : ""}${isDragging ? " is-dragging" : ""}`}
           onPointerDown={handleLightboxPointerDown}
           onPointerMove={handleLightboxPointerMove}
           onPointerUp={handleLightboxPointerEnd}
@@ -310,7 +355,7 @@ export default function ProductGallery({ productName, images }: ProductGalleryPr
           onDoubleClick={handleLightboxDoubleClick}
           onClick={(event) => { if (event.target === event.currentTarget && zoomRef.current === MIN_ZOOM) closeModal(); }}
         >
-          <img src={activeImage.src} alt={activeImage.alt} style={{ transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${zoom})` }} draggable={false} />
+          <img ref={imageRef} src={activeImage.src} alt={activeImage.alt} style={{ transform: `translate3d(${pan.x}px, ${pan.y}px, 0) translate(-50%, -50%) scale(${zoom})` }} onLoad={() => updatePan((current) => current)} draggable={false} />
         </div>
         {images.length > 1 && <button className="lightbox-nav lightbox-next" type="button" onClick={() => moveBy(1)} aria-label="Ver imagen siguiente">→</button>}
         <div className="lightbox-tools" aria-label="Controles de zoom">
