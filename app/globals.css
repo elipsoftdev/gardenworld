@@ -163,9 +163,8 @@ button {
 .brand-mark {
   width: 31px;
   height: 31px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.1;
+  object-fit: contain;
+  flex: 0 0 auto;
 }
 
 .brand-inverse {

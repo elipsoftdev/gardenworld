@@ -70,7 +70,7 @@ function WhatsAppIcon() {
 }
 
 function Brand({ inverse = false }: { inverse?: boolean }) {
-  return <span className={`brand${inverse ? " brand-inverse" : ""}`}><svg viewBox="0 0 34 34" aria-hidden="true" className="brand-mark"><circle cx="17" cy="17" r="12.5" /><circle cx="17" cy="17" r="8" /><circle cx="17" cy="17" r="3.5" /><path d="M22.5 7.5c3-2.5 6.2-2.8 6.2-2.8s-.6 3.6-3.7 5" /></svg><span>Garden World</span></span>;
+  return <span className={`brand${inverse ? " brand-inverse" : ""}`}><img src="/images/brand/garden-world-logo-original.png" alt="" aria-hidden="true" className="brand-mark" /><span>Garden World</span></span>;
 }
 
 export default function Home() {
