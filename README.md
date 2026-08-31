@@ -76,7 +76,7 @@ public/
 
 ## 🔧 Cambiar el número de WhatsApp o el contacto
 
-En `app/page.tsx`, buscar `584143228003` (aparece una sola vez, en el `useEffect`). El nombre de contacto ("Sr. Héctor Guevara") está en el footer, sección "Contacto" del JSX.
+En `app/page.tsx`, la constante `WHATSAPP_NUMBER` centraliza el teléfono corporativo `584224273369`. El enlace de contacto y los datos corporativos están en el footer.
 
 ## 🌐 Dominio propio (opcional)
 
