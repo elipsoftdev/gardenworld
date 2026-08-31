@@ -2561,12 +2561,15 @@ button {
 
   .footer-links > div:last-child {
     grid-column: 1 / -1;
+    align-items: center;
+    text-align: center;
   }
 
   .footer-bottom {
-    align-items: flex-start;
+    align-items: center;
     flex-direction: column;
     gap: 0.5rem;
+    text-align: center;
   }
 
   .whatsapp-fab {
