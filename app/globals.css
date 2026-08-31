@@ -1857,6 +1857,29 @@ button {
   color: var(--white);
 }
 
+.footer-links .elipsoft-credit {
+  width: auto;
+  margin-top: 0.35rem;
+  color: rgba(255, 255, 255, 0.46);
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  line-height: 1.45;
+}
+
+.footer-links .elipsoft-credit a {
+  width: auto;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.18em;
+  transition: color 180ms var(--ease), text-decoration-color 180ms var(--ease);
+}
+
+.footer-links .elipsoft-credit a:hover {
+  color: rgba(255, 255, 255, 0.72);
+  text-decoration-color: currentColor;
+}
+
 .footer-bottom {
   padding-block: 1.2rem;
   display: flex;
