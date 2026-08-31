@@ -30,7 +30,7 @@ const PRODUCTS: Product[] = [
     promotionalPrice: "US$140",
     color: "#c7c8c4",
     images: [
-      { src: "/images/products/premium-silver-product-main.webp", alt: "Base Premium Silver Garden World con manguera azul instalada, vista frontal", label: "Vista frontal instalada", fit: "contain" },
+      { src: "/images/products/premium-silver-product-main.webp", alt: "Base Premium Silver Garden World con manguera azul instalada, vista frontal", label: "Vista frontal instalada", fit: "cover" },
       { src: "/images/products/premium-silver-isolated.webp", alt: "Base Premium Silver Garden World en acero inoxidable, vista frontal", label: "Vista frontal", fit: "contain" },
       { src: "/images/products/premium-silver-garden.webp", alt: "Base Premium Silver Garden World instalada con manguera azul en un jardín", label: "En jardín", fit: "cover" },
       { src: "/images/products/premium-silver-wood-garden.webp", alt: "Base Premium Silver Garden World instalada con manguera azul frente a una pared de madera", label: "Detalle exterior", fit: "cover" },
@@ -45,7 +45,7 @@ const PRODUCTS: Product[] = [
     promotionalPrice: "US$125",
     color: "#292b28",
     images: [
-      { src: "/images/products/black-product-main.webp", alt: "Base Black Garden World con manguera azul instalada, vista frontal", label: "Vista frontal instalada", fit: "contain" },
+      { src: "/images/products/black-product-main.webp", alt: "Base Black Garden World con manguera azul instalada, vista frontal", label: "Vista frontal instalada", fit: "cover" },
       { src: "/images/products/black-isolated.webp", alt: "Base Black Garden World, vista frontal del producto", label: "Vista frontal", fit: "contain" },
       { src: "/images/products/black-orange-hose.webp", alt: "Base Black Garden World instalada con manguera naranja", label: "Instalada", fit: "cover" },
       { src: "/images/products/black-dark-hose.webp", alt: "Base Black Garden World instalada con manguera negra en ambiente oscuro", label: "Ambiente oscuro", fit: "cover" },
