@@ -2,6 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 
 const siteUrl = 'https://gardenworld.online';
+const homeUrl = `${siteUrl}/`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -34,7 +35,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
+    <html lang="es-VE">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -47,11 +48,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               '@context': 'https://schema.org',
-              '@type': 'WebSite',
-              name: 'Garden World',
-              url: siteUrl,
-              inLanguage: 'es-VE',
-              description: 'Bases para mangueras Garden World para espacios exteriores.',
+              '@graph': [
+                {
+                  '@type': 'WebSite',
+                  name: 'Garden World',
+                  url: homeUrl,
+                  inLanguage: 'es-VE',
+                  description: 'Bases para mangueras Garden World para espacios exteriores.',
+                },
+                {
+                  '@type': 'Organization',
+                  name: 'Garden World',
+                  url: homeUrl,
+                  logo: `${siteUrl}/images/brand/garden-world-logo-original.png`,
+                },
+              ],
             }),
           }}
         />
