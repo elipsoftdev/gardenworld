@@ -1,12 +1,15 @@
 "use client";
 
-import { FormEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, KeyboardEvent, PointerEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import BeforeAfterSlider from "./components/BeforeAfterSlider";
 import ProductDescriptionModal from "./components/ProductDescriptionModal";
 import ProductGallery, { type ProductGalleryImage } from "./components/ProductGallery";
 
 const WHATSAPP_NUMBER = "584224273369";
 const PRODUCT_NAME = "Base para manguera Garden World";
+const WHATSAPP_POSITION_KEY = "gardenworld-whatsapp-position";
+const DESKTOP_BREAKPOINT = 1181;
+const WHATSAPP_DRAG_MARGIN = 16;
 
 type ProductKey = "premium-silver" | "black";
 type Product = {
@@ -82,9 +85,14 @@ export default function Home() {
   const [quantity, setQuantity] = useState("1");
   const [city, setCity] = useState("");
   const [buyer, setBuyer] = useState("Hogar");
+  const [whatsappPosition, setWhatsappPosition] = useState<{ left: number; top: number } | null>(null);
+  const [whatsappDragging, setWhatsappDragging] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const descriptionButtonRef = useRef<HTMLButtonElement>(null);
+  const whatsappButtonRef = useRef<HTMLAnchorElement>(null);
+  const whatsappDragRef = useRef<{ pointerId: number; startX: number; startY: number; lastX: number; lastY: number; startLeft: number; startTop: number; moved: boolean } | null>(null);
+  const suppressWhatsAppClickRef = useRef(false);
   const selectedProduct = PRODUCTS.find((product) => product.key === productKey) ?? PRODUCTS[0];
   const productWhatsApp = makeWhatsAppLink(`Hola Garden World, quiero cotizar la ${selectedProduct.name}. ¿Me comparten disponibilidad y próximos pasos?`);
   const quoteMessage = useMemo(() => {
@@ -93,6 +101,75 @@ export default function Home() {
     lines.push(`· Tipo de cliente: ${buyer}`, "", "¿Me comparten disponibilidad y próximos pasos?");
     return lines.join("\n");
   }, [buyer, city, quantity, selectedProduct]);
+
+  const clampWhatsAppPosition = useCallback((left: number, top: number) => {
+    const button = whatsappButtonRef.current;
+    const width = button?.offsetWidth ?? 52;
+    const height = button?.offsetHeight ?? 52;
+    return {
+      left: Math.min(Math.max(WHATSAPP_DRAG_MARGIN, left), Math.max(WHATSAPP_DRAG_MARGIN, window.innerWidth - width - WHATSAPP_DRAG_MARGIN)),
+      top: Math.min(Math.max(WHATSAPP_DRAG_MARGIN, top), Math.max(WHATSAPP_DRAG_MARGIN, window.innerHeight - height - WHATSAPP_DRAG_MARGIN)),
+    };
+  }, []);
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(window.localStorage.getItem(WHATSAPP_POSITION_KEY) ?? "null") as { left?: unknown; top?: unknown } | null;
+      if (typeof stored?.left === "number" && typeof stored.top === "number") {
+        setWhatsappPosition(clampWhatsAppPosition(stored.left, stored.top));
+      }
+    } catch {
+      window.localStorage.removeItem(WHATSAPP_POSITION_KEY);
+    }
+    const handleResize = () => setWhatsappPosition((previous) => {
+      if (!previous) return previous;
+      const next = clampWhatsAppPosition(previous.left, previous.top);
+      window.localStorage.setItem(WHATSAPP_POSITION_KEY, JSON.stringify(next));
+      return next;
+    });
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [clampWhatsAppPosition]);
+
+  const handleWhatsAppPointerDown = (event: PointerEvent<HTMLAnchorElement>) => {
+    if (window.innerWidth < DESKTOP_BREAKPOINT || event.button !== 0) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    whatsappDragRef.current = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, lastX: event.clientX, lastY: event.clientY, startLeft: whatsappPosition?.left ?? rect.left, startTop: whatsappPosition?.top ?? rect.top, moved: false };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handleWhatsAppPointerMove = (event: PointerEvent<HTMLAnchorElement>) => {
+    const drag = whatsappDragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    const deltaX = event.clientX - drag.startX;
+    const deltaY = event.clientY - drag.startY;
+    drag.lastX = event.clientX;
+    drag.lastY = event.clientY;
+    if (!drag.moved && Math.hypot(deltaX, deltaY) < 4) return;
+    drag.moved = true;
+    setWhatsappDragging(true);
+    setWhatsappPosition(clampWhatsAppPosition(drag.startLeft + deltaX, drag.startTop + deltaY));
+  };
+
+  const finishWhatsAppPointer = (event: PointerEvent<HTMLAnchorElement>) => {
+    const drag = whatsappDragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    if (drag.moved) {
+      suppressWhatsAppClickRef.current = true;
+      const position = clampWhatsAppPosition(drag.startLeft + drag.lastX - drag.startX, drag.startTop + drag.lastY - drag.startY);
+      setWhatsappPosition(position);
+      window.localStorage.setItem(WHATSAPP_POSITION_KEY, JSON.stringify(position));
+    }
+    whatsappDragRef.current = null;
+    setWhatsappDragging(false);
+  };
+
+  const handleWhatsAppClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!suppressWhatsAppClickRef.current) return;
+    event.preventDefault();
+    suppressWhatsAppClickRef.current = false;
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 24);
@@ -154,7 +231,7 @@ export default function Home() {
       <section className="quote-section" id="cotizar"><div className="container quote-grid"><div className="quote-copy" data-reveal><p className="eyebrow">Cotización · Contacto</p><h2>Cuéntanos qué necesitas.</h2><p>Selecciona una base y cantidad. La conversación continúa directamente por WhatsApp.</p><div className="quote-note"><span>01</span><p>Elige tu estilo.</p><span>02</span><p>Completa solo lo necesario.</p><span>03</span><p>Habla con un asesor.</p></div></div><form className="quote-form" onSubmit={handleSubmit} data-reveal><label><span>Producto</span><input value={PRODUCT_NAME} readOnly aria-readonly="true" /></label><div className="quote-form-row"><label><span>Modelo</span><select value={productKey} onChange={(event) => selectProduct(event.target.value as ProductKey)}>{PRODUCTS.map((product) => <option value={product.key} key={product.key}>{product.name}</option>)}</select></label><label><span>Cantidad</span><input type="number" min="1" inputMode="numeric" value={quantity} onChange={(event) => setQuantity(event.target.value)} /></label></div><div className="quote-form-row"><label><span>Ciudad <small>(opcional)</small></span><input type="text" autoComplete="address-level2" placeholder="Tu ciudad" value={city} onChange={(event) => setCity(event.target.value)} /></label><label><span>Tipo de cliente</span><select value={buyer} onChange={(event) => setBuyer(event.target.value)}><option>Hogar</option><option>Diseño exterior</option><option>Hotel / Desarrollo</option><option>Distribución / Mayorista</option></select></label></div><div className="message-preview" aria-live="polite"><span>Mensaje preparado</span><p>{quoteMessage}</p></div><button className="button button-wide" type="submit" data-whatsapp-cta><WhatsAppIcon /> Habla con un asesor <span aria-hidden="true">↗</span></button><p className="form-fineprint">No guardamos estos datos. El mensaje se abre en WhatsApp y tú decides si enviarlo.</p></form></div></section>
     </main>
     <ProductDescriptionModal isOpen={descriptionOpen} productName={selectedProduct.name} description={selectedProduct.fullDescription} openerRef={descriptionButtonRef} onClose={closeDescription} />
-    <footer className="site-footer" aria-hidden={menuOpen || descriptionOpen}><div className="container footer-top"><div className="footer-brand"><Brand inverse /><p>Diseño, orden y funcionalidad para tu jardín.</p></div><div className="footer-links"><div><p>Explorar</p>{NAV_ITEMS.map((item) => <a key={item.label} href={item.href}>{item.label}</a>)}</div><div><p>Atención</p><a href={makeWhatsAppLink("Hola Garden World, quiero cotizar una base para manguera.")} target="_blank" rel="noopener noreferrer">WhatsApp ↗</a><a href={makeWhatsAppLink("Hola Garden World, quiero cotizar una base para manguera.")} target="_blank" rel="noopener noreferrer">0422-GARDENW · 0422-427-3369</a><span>Venezuela</span></div><div><p>Corporativo</p><span>GARDEN WORLD, C.A.</span><span>RIF J508706625</span><span className="elipsoft-credit">Diseño y desarrollo web por <a href="https://elipsoft.us" target="_blank" rel="noopener noreferrer">Elipsoft LLC</a></span></div></div></div><div className="container footer-bottom"><span>© {new Date().getFullYear()} Garden World</span><span>Bases Garden World</span></div></footer>
-    <a className={`whatsapp-fab${inlineWhatsAppVisible ? " is-suppressed" : ""}`} href={makeWhatsAppLink("Hola Garden World, quiero cotizar una base para manguera.")} target="_blank" rel="noopener noreferrer" aria-label="Cotiza con nosotros por WhatsApp" aria-hidden={menuOpen || descriptionOpen || inlineWhatsAppVisible} tabIndex={menuOpen || descriptionOpen || inlineWhatsAppVisible ? -1 : undefined}><WhatsAppIcon /><span>Cotiza con nosotros</span></a>
+    <footer className="site-footer" aria-hidden={menuOpen || descriptionOpen}><div className="container footer-top"><div className="footer-brand"><Brand inverse /><p>Diseño, orden y funcionalidad para tu jardín.</p></div><div className="footer-links"><div><p>Explorar</p>{NAV_ITEMS.map((item) => <a key={item.label} href={item.href}>{item.label}</a>)}</div><div><p>Atención</p><a href={makeWhatsAppLink("Hola Garden World, quiero cotizar una base para manguera.")} target="_blank" rel="noopener noreferrer">WhatsApp ↗</a><a href={makeWhatsAppLink("Hola Garden World, quiero cotizar una base para manguera.")} target="_blank" rel="noopener noreferrer">0422-GARDENW · 0422-427-3369</a><span>Venezuela</span></div><div><p>Corporativo</p><span>GARDEN WORLD, C.A.</span><span>RIF J508706625</span></div></div></div><div className="container footer-bottom"><span>© 2026 Garden World · Diseño y desarrollo web por <a href="https://elipsoft.us" target="_blank" rel="noopener noreferrer">Elipsoft LLC</a></span></div></footer>
+    <a ref={whatsappButtonRef} className={`whatsapp-fab${inlineWhatsAppVisible ? " is-suppressed" : ""}${whatsappDragging ? " is-dragging" : ""}`} style={whatsappPosition ? { left: `${whatsappPosition.left}px`, top: `${whatsappPosition.top}px`, right: "auto", bottom: "auto" } : undefined} href={makeWhatsAppLink("Hola Garden World, quiero cotizar una base para manguera.")} target="_blank" rel="noopener noreferrer" aria-label="Cotiza con nosotros por WhatsApp" aria-hidden={menuOpen || descriptionOpen || inlineWhatsAppVisible} tabIndex={menuOpen || descriptionOpen || inlineWhatsAppVisible ? -1 : undefined} onPointerDown={handleWhatsAppPointerDown} onPointerMove={handleWhatsAppPointerMove} onPointerUp={finishWhatsAppPointer} onPointerCancel={finishWhatsAppPointer} onClick={handleWhatsAppClick}><WhatsAppIcon /><span>Cotiza con nosotros</span></a>
   </>;
 }

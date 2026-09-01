@@ -1857,17 +1857,20 @@ button {
   color: var(--white);
 }
 
-.footer-links .elipsoft-credit {
-  width: auto;
-  margin-top: 0.35rem;
-  color: rgba(255, 255, 255, 0.46);
-  font-family: var(--font-sans);
-  font-size: 0.62rem;
-  line-height: 1.45;
+.footer-bottom {
+  padding-block: 1.2rem;
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid var(--line-light);
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: none;
 }
 
-.footer-links .elipsoft-credit a {
-  width: auto;
+.footer-bottom a {
   color: inherit;
   text-decoration: underline;
   text-decoration-color: transparent;
@@ -1875,21 +1878,10 @@ button {
   transition: color 180ms var(--ease), text-decoration-color 180ms var(--ease);
 }
 
-.footer-links .elipsoft-credit a:hover {
-  color: rgba(255, 255, 255, 0.72);
+.footer-bottom a:hover,
+.footer-bottom a:focus-visible {
+  color: var(--white);
   text-decoration-color: currentColor;
-}
-
-.footer-bottom {
-  padding-block: 1.2rem;
-  display: flex;
-  justify-content: space-between;
-  border-top: 1px solid var(--line-light);
-  color: rgba(255, 255, 255, 0.48);
-  font-size: 0.58rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .whatsapp-fab {
@@ -1909,6 +1901,7 @@ button {
   box-shadow: 0 12px 34px rgba(12, 41, 34, 0.2);
   font-size: 0.7rem;
   font-weight: 750;
+  cursor: default;
   transition: transform 220ms var(--ease), background 220ms ease;
 }
 
@@ -1929,6 +1922,19 @@ button {
 .whatsapp-fab:hover {
   background: var(--ink);
   transform: translateY(-3px);
+}
+
+@media (min-width: 1181px) {
+  .whatsapp-fab {
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .whatsapp-fab.is-dragging {
+    cursor: grabbing;
+    transform: none;
+    transition: none;
+  }
 }
 
 [data-reveal] {
@@ -2135,6 +2141,13 @@ button {
 @media (max-width: 1180px) {
   :root {
     --container: min(100% - 3rem, 1500px);
+  }
+
+  .whatsapp-fab {
+    left: auto !important;
+    top: auto !important;
+    right: max(1rem, env(safe-area-inset-right)) !important;
+    bottom: max(1rem, env(safe-area-inset-bottom)) !important;
   }
 
   .site-header {
@@ -2573,8 +2586,10 @@ button {
   }
 
   .whatsapp-fab {
-    right: max(0.75rem, env(safe-area-inset-right));
-    bottom: max(0.75rem, env(safe-area-inset-bottom));
+    left: auto !important;
+    top: auto !important;
+    right: max(0.75rem, env(safe-area-inset-right)) !important;
+    bottom: max(0.75rem, env(safe-area-inset-bottom)) !important;
     width: 48px;
     height: 48px;
     padding: 0;
