@@ -1,7 +1,10 @@
 import './globals.css';
 import type { Metadata } from 'next';
 
-const siteUrl = 'https://gardenworld.online';
+const isDevelopment = process.env.SITE_ENV === 'development';
+const siteUrl =
+  process.env.SITE_URL ||
+  (isDevelopment ? 'https://dev.gardenworld.online' : 'https://gardenworld.online');
 const homeUrl = `${siteUrl}/`;
 
 export const metadata: Metadata = {
@@ -13,8 +16,8 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   robots: {
-    index: true,
-    follow: true,
+    index: !isDevelopment,
+    follow: !isDevelopment,
   },
   openGraph: {
     type: 'website',
