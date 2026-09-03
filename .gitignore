@@ -3,3 +3,11 @@ node_modules
 out
 .DS_Store
 *.log
+data
+.tmp-build
+*.db
+*.db-wal
+*.db-shm
+.env
+.env.local
+tsconfig.tsbuildinfo
