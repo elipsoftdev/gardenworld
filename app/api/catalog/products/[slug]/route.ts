@@ -11,11 +11,12 @@ import {
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-type Params = { params: { slug: string } };
+type Params = { params: Promise<{ slug: string }> };
 
 export const GET = route(async (_request: Request, { params }: Params) => {
+  const { slug: rawSlug } = await params;
   const db = getDb();
-  const slug = params.slug?.toLowerCase() ?? '';
+  const slug = rawSlug?.toLowerCase() ?? '';
 
   const product = db
     .prepare(`SELECT * FROM products WHERE slug = ? AND ${PUBLIC_VISIBILITY_SQL}`)

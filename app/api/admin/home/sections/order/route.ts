@@ -8,7 +8,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export const PUT = route(async (request: Request) => {
-  const { db, user } = requireMutation(request);
+  const { db, user } = await requireMutation(request);
   const body = await readJsonBody(request);
   const validator = new Validator(body);
 

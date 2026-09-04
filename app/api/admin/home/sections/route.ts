@@ -6,6 +6,6 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export const GET = route(async (request: Request) => {
-  const { db } = requireAuth(request);
+  const { db } = await requireAuth(request);
   return ok({ sections: listHomeSections(db).map(serializeHomeSection) });
 });

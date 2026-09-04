@@ -8,16 +8,18 @@ import { parseId, readJsonBody, Validator } from '@/lib/validation';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-type Params = { params: { id: string } };
+type Params = { params: Promise<{ id: string }> };
 
 export const GET = route(async (request: Request, { params }: Params) => {
-  const { db } = requireSuperAdmin(request);
-  return ok({ user: serializeUser(requireUser(db, parseId(params.id))) });
+  const { id } = await params;
+  const { db } = await requireSuperAdmin(request);
+  return ok({ user: serializeUser(requireUser(db, parseId(id))) });
 });
 
 export const PUT = route(async (request: Request, { params }: Params) => {
-  const { db, user: actor } = requireSuperAdminMutation(request);
-  const id = parseId(params.id);
+  const { id: rawId } = await params;
+  const { db, user: actor } = await requireSuperAdminMutation(request);
+  const id = parseId(rawId);
   const target = requireUser(db, id);
 
   const body = await readJsonBody(request);

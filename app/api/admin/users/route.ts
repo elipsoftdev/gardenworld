@@ -13,13 +13,13 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export const GET = route(async (request: Request) => {
-  const { db } = requireSuperAdmin(request);
+  const { db } = await requireSuperAdmin(request);
   return ok({ users: listUsers(db).map(serializeUser) });
 });
 
 /** Creates admin accounts only: super_admin cannot be minted through the API. */
 export const POST = route(async (request: Request) => {
-  const { db, user } = requireSuperAdminMutation(request);
+  const { db, user } = await requireSuperAdminMutation(request);
   const body = await readJsonBody(request);
 
   if (body.role !== undefined && body.role !== 'admin') {

@@ -14,7 +14,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export const POST = route(async (request: Request) => {
-  const { db, user, token } = requireMutation(request);
+  const { db, user, token } = await requireMutation(request);
 
   const body = await readJsonBody(request);
   const currentPassword = typeof body.currentPassword === 'string' ? body.currentPassword : '';

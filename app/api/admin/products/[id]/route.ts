@@ -17,7 +17,7 @@ import { parseId, readJsonBody } from '@/lib/validation';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-type Params = { params: { id: string } };
+type Params = { params: Promise<{ id: string }> };
 
 /** Derives the specific audit actions implied by a diff, on top of product.update. */
 function auditChanges(
@@ -70,8 +70,9 @@ function applyUpdate(db: Db, id: number, columns: ProductColumns): void {
 }
 
 export const GET = route(async (request: Request, { params }: Params) => {
-  const { db } = requireAuth(request);
-  const id = parseId(params.id);
+  const { id: rawId } = await params;
+  const { db } = await requireAuth(request);
+  const id = parseId(rawId);
   const product = requireProduct(db, id);
 
   return ok({
@@ -82,8 +83,9 @@ export const GET = route(async (request: Request, { params }: Params) => {
 });
 
 export const PUT = route(async (request: Request, { params }: Params) => {
-  const { db, user } = requireMutation(request);
-  const id = parseId(params.id);
+  const { id: rawId } = await params;
+  const { db, user } = await requireMutation(request);
+  const id = parseId(rawId);
   const before = requireProduct(db, id);
 
   const body = await readJsonBody(request);
@@ -105,8 +107,9 @@ export const PUT = route(async (request: Request, { params }: Params) => {
 
 /** Soft delete: the row is archived and hidden, never physically removed. */
 export const DELETE = route(async (request: Request, { params }: Params) => {
-  const { db, user } = requireMutation(request);
-  const id = parseId(params.id);
+  const { id: rawId } = await params;
+  const { db, user } = await requireMutation(request);
+  const id = parseId(rawId);
   const product = requireProduct(db, id);
 
   db.prepare(

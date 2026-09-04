@@ -16,42 +16,42 @@ export function sessionTokenFromRequest(request: Request): string | undefined {
   return undefined;
 }
 
-function readToken(request?: Request): string | undefined {
+async function readToken(request?: Request): Promise<string | undefined> {
   if (request) {
     const fromRequest = sessionTokenFromRequest(request);
     if (fromRequest) return fromRequest;
   }
   try {
-    return cookies().get(SESSION_COOKIE)?.value;
+    return (await cookies()).get(SESSION_COOKIE)?.value;
   } catch {
     return undefined;
   }
 }
 
 /** Resolves the caller's session, or throws 401. */
-export function requireAuth(request?: Request): AuthContext {
+export async function requireAuth(request?: Request): Promise<AuthContext> {
   const db = getDb();
-  const token = readToken(request);
+  const token = await readToken(request);
   const session = lookupSession(db, token);
   if (!session || !token) throw new ApiError('unauthorized', 'Authentication required');
   return { ...session, db, token };
 }
 
 /** Authenticated + same-origin check, for any state-changing admin call. */
-export function requireMutation(request: Request): AuthContext {
+export async function requireMutation(request: Request): Promise<AuthContext> {
   assertSameOrigin(request);
   return requireAuth(request);
 }
 
-export function requireSuperAdmin(request?: Request): AuthContext {
-  const context = requireAuth(request);
+export async function requireSuperAdmin(request?: Request): Promise<AuthContext> {
+  const context = await requireAuth(request);
   if (context.user.role !== 'super_admin') {
     throw new ApiError('forbidden', 'Super admin role required');
   }
   return context;
 }
 
-export function requireSuperAdminMutation(request: Request): AuthContext {
+export async function requireSuperAdminMutation(request: Request): Promise<AuthContext> {
   assertSameOrigin(request);
   return requireSuperAdmin(request);
 }

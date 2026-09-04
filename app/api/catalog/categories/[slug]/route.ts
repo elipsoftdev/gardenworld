@@ -6,11 +6,12 @@ import { PUBLIC_VISIBILITY_SQL, serializePublicProduct, type ProductRow } from '
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-type Params = { params: { slug: string } };
+type Params = { params: Promise<{ slug: string }> };
 
 export const GET = route(async (_request: Request, { params }: Params) => {
+  const { slug: rawSlug } = await params;
   const db = getDb();
-  const slug = params.slug?.toLowerCase() ?? '';
+  const slug = rawSlug?.toLowerCase() ?? '';
 
   const category = db
     .prepare('SELECT * FROM categories WHERE slug = ? AND published = 1')

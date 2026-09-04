@@ -5,10 +5,10 @@ import { AdminShell } from '../components/AdminShell';
 
 export const dynamic = 'force-dynamic';
 
-export default function ProtectedAdminLayout({ children }: { children: React.ReactNode }) {
+export default async function ProtectedAdminLayout({ children }: { children: React.ReactNode }) {
   let user: AdminUser;
   try {
-    const context = requireAuth();
+    const context = await requireAuth();
     user = {
       id: context.user.id,
       name: context.user.name,

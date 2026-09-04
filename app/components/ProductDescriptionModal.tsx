@@ -6,7 +6,7 @@ type ProductDescriptionModalProps = {
   isOpen: boolean;
   productName: string;
   description: string;
-  openerRef: RefObject<HTMLButtonElement>;
+  openerRef: RefObject<HTMLButtonElement | null>;
   onClose: () => void;
 };
 

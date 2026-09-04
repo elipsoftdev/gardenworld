@@ -4,10 +4,10 @@ import { ChangePasswordForm } from './ChangePasswordForm';
 
 export const dynamic = 'force-dynamic';
 
-export default function ChangePasswordPage() {
+export default async function ChangePasswordPage() {
   let required = false;
   try {
-    const { user } = requireAuth();
+    const { user } = await requireAuth();
     required = user.must_change_password === 1;
   } catch (error) {
     if (error && typeof error === 'object' && 'digest' in error) throw error;

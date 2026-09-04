@@ -7,11 +7,11 @@ import { parseId } from '@/lib/validation';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-type Params = { params: { id: string } };
+type Params = { params: Promise<{ id: string }> };
 
 /** Refuses to remove a file any product or category still points at. */
 function countReferences(
-  db: ReturnType<typeof requireMutation>['db'],
+  db: Awaited<ReturnType<typeof requireMutation>>['db'],
   path: string,
 ): { products: number; images: number; categories: number } {
   const one = (sql: string) => (db.prepare(sql).get(path) as { total: number }).total;
@@ -23,8 +23,9 @@ function countReferences(
 }
 
 export const DELETE = route(async (request: Request, { params }: Params) => {
-  const { db, user } = requireMutation(request);
-  const id = parseId(params.id);
+  const { id: rawId } = await params;
+  const { db, user } = await requireMutation(request);
+  const id = parseId(rawId);
 
   const upload = db.prepare('SELECT * FROM uploads WHERE id = ?').get(id) as
     | { id: number; path: string }

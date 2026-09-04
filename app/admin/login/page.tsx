@@ -4,9 +4,9 @@ import { LoginForm } from './LoginForm';
 
 export const dynamic = 'force-dynamic';
 
-export default function LoginPage() {
+export default async function LoginPage() {
   try {
-    const { user } = requireAuth();
+    const { user } = await requireAuth();
     redirect(user.must_change_password === 1 ? '/admin/change-password' : '/admin');
   } catch (error) {
     if (error && typeof error === 'object' && 'digest' in error) throw error;

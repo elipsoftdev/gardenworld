@@ -8,7 +8,7 @@ import { parseId, readJsonBody, Validator } from '@/lib/validation';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-type Params = { params: { id: string; specId: string } };
+type Params = { params: Promise<{ id: string; specId: string }> };
 
 function requireSpec(db: Db, productId: number, specId: number): ProductSpecRow {
   const spec = db
@@ -19,9 +19,10 @@ function requireSpec(db: Db, productId: number, specId: number): ProductSpecRow 
 }
 
 export const PUT = route(async (request: Request, { params }: Params) => {
-  const { db, user } = requireMutation(request);
-  const productId = parseId(params.id);
-  const specId = parseId(params.specId);
+  const { id: rawId, specId: rawSpecId } = await params;
+  const { db, user } = await requireMutation(request);
+  const productId = parseId(rawId);
+  const specId = parseId(rawSpecId);
   requireProduct(db, productId);
   const spec = requireSpec(db, productId, specId);
 
@@ -53,9 +54,10 @@ export const PUT = route(async (request: Request, { params }: Params) => {
 });
 
 export const DELETE = route(async (request: Request, { params }: Params) => {
-  const { db, user } = requireMutation(request);
-  const productId = parseId(params.id);
-  const specId = parseId(params.specId);
+  const { id: rawId, specId: rawSpecId } = await params;
+  const { db, user } = await requireMutation(request);
+  const productId = parseId(rawId);
+  const specId = parseId(rawSpecId);
   requireProduct(db, productId);
   requireSpec(db, productId, specId);
 

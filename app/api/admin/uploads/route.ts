@@ -42,7 +42,7 @@ function safeOriginalName(name: unknown): string | null {
 }
 
 export const GET = route(async (request: Request) => {
-  const { db } = requireAuth(request);
+  const { db } = await requireAuth(request);
   const url = new URL(request.url);
   const limit = Math.min(200, Math.max(1, Number(url.searchParams.get('limit') ?? '50') || 50));
   const rows = db
@@ -52,7 +52,7 @@ export const GET = route(async (request: Request) => {
 });
 
 export const POST = route(async (request: Request) => {
-  const { db, user } = requireMutation(request);
+  const { db, user } = await requireMutation(request);
 
   const contentType = request.headers.get('content-type') ?? '';
   if (!contentType.includes('multipart/form-data')) {

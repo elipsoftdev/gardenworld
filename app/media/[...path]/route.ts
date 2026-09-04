@@ -5,14 +5,15 @@ import { fail, route } from '@/lib/http/response';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-type Params = { params: { path: string[] } };
+type Params = { params: Promise<{ path: string[] }> };
 
 /**
  * Serves stored uploads from UPLOAD_DIR. The same code works for the ephemeral
  * DEV directory and a future persistent disk: only the env var changes.
  */
 export const GET = route(async (_request: Request, { params }: Params) => {
-  const relativePath = (params.path ?? []).join('/');
+  const { path } = await params;
+  const relativePath = (path ?? []).join('/');
   const absolute = resolveStoredPath(relativePath);
   if (!absolute) return fail('not_found', 'File not found');
 

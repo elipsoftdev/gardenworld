@@ -13,17 +13,19 @@ import { parseId, readJsonBody } from '@/lib/validation';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-type Params = { params: { id: string } };
+type Params = { params: Promise<{ id: string }> };
 
 export const GET = route(async (request: Request, { params }: Params) => {
-  const { db } = requireAuth(request);
-  const category = requireCategory(db, parseId(params.id));
+  const { id: rawId } = await params;
+  const { db } = await requireAuth(request);
+  const category = requireCategory(db, parseId(rawId));
   return ok({ category: serializeCategory(category) });
 });
 
 export const PUT = route(async (request: Request, { params }: Params) => {
-  const { db, user } = requireMutation(request);
-  const id = parseId(params.id);
+  const { id: rawId } = await params;
+  const { db, user } = await requireMutation(request);
+  const id = parseId(rawId);
   const existing = requireCategory(db, id);
 
   const body = await readJsonBody(request);
@@ -54,8 +56,9 @@ export const PUT = route(async (request: Request, { params }: Params) => {
  * child categories is refused with 409 so nothing is orphaned silently.
  */
 export const DELETE = route(async (request: Request, { params }: Params) => {
-  const { db, user } = requireMutation(request);
-  const id = parseId(params.id);
+  const { id: rawId } = await params;
+  const { db, user } = await requireMutation(request);
+  const id = parseId(rawId);
   requireCategory(db, id);
 
   const products = countActiveProducts(db, id);

@@ -9,12 +9,12 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export const GET = route(async (request: Request) => {
-  const { db } = requireAuth(request);
+  const { db } = await requireAuth(request);
   return ok({ categories: listCategories(db).map(serializeCategory) });
 });
 
 export const POST = route(async (request: Request) => {
-  const { db, user } = requireMutation(request);
+  const { db, user } = await requireMutation(request);
   const body = await readJsonBody(request);
   const columns = parseCategoryPayload(db, body);
 

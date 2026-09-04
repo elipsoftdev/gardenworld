@@ -15,7 +15,7 @@ type AuditRow = {
 };
 
 export const GET = route(async (request: Request) => {
-  const { db } = requireSuperAdmin(request);
+  const { db } = await requireSuperAdmin(request);
   const url = new URL(request.url);
   const limit = Math.min(200, Math.max(1, Number(url.searchParams.get('limit') ?? '50') || 50));
 

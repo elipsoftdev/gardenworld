@@ -18,7 +18,7 @@ function readPaging(url: URL): { limit: number; offset: number; page: number } {
 }
 
 export const GET = route(async (request: Request) => {
-  const { db } = requireAuth(request);
+  const { db } = await requireAuth(request);
   const url = new URL(request.url);
   const { limit, offset, page } = readPaging(url);
 
@@ -72,7 +72,7 @@ export const GET = route(async (request: Request) => {
 });
 
 export const POST = route(async (request: Request) => {
-  const { db, user } = requireMutation(request);
+  const { db, user } = await requireMutation(request);
   const body = await readJsonBody(request);
   const columns = parseProductPayload(db, body);
 

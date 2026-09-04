@@ -7,11 +7,12 @@ import { readJsonBody, Validator } from '@/lib/validation';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-type Params = { params: { sectionKey: string } };
+type Params = { params: Promise<{ sectionKey: string }> };
 
 export const PUT = route(async (request: Request, { params }: Params) => {
-  const { db, user } = requireMutation(request);
-  const section = requireHomeSection(db, params.sectionKey);
+  const { sectionKey } = await params;
+  const { db, user } = await requireMutation(request);
+  const section = requireHomeSection(db, sectionKey);
 
   const body = await readJsonBody(request);
   const validator = new Validator(body);

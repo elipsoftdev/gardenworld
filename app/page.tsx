@@ -89,7 +89,7 @@ export default function Home() {
   const [whatsappDragging, setWhatsappDragging] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
-  const descriptionButtonRef = useRef<HTMLButtonElement>(null);
+  const descriptionButtonRef = useRef<HTMLButtonElement | null>(null);
   const whatsappButtonRef = useRef<HTMLAnchorElement>(null);
   const whatsappDragRef = useRef<{ pointerId: number; startX: number; startY: number; lastX: number; lastY: number; startLeft: number; startTop: number; moved: boolean } | null>(null);
   const suppressWhatsAppClickRef = useRef(false);

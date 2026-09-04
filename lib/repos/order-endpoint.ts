@@ -15,7 +15,7 @@ const LIST_LABEL: Record<OrderField, string> = {
  * replaces the whole ordering in a single transaction.
  */
 export async function handleProductOrder(request: Request, field: OrderField): Promise<Response> {
-  const { db, user } = requireMutation(request);
+  const { db, user } = await requireMutation(request);
   const body = await readJsonBody(request);
   const validator = new Validator(body);
   const ids = validator.idList('ids');

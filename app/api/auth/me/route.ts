@@ -5,7 +5,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export const GET = route(async (request: Request) => {
-  const { user } = requireAuth(request);
+  const { user } = await requireAuth(request);
   return ok({
     user: {
       id: user.id,

@@ -7,10 +7,10 @@ import { parseId, readJsonBody, Validator } from '@/lib/validation';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-type Params = { params: { id: string; imageId: string } };
+type Params = { params: Promise<{ id: string; imageId: string }> };
 
 function requireImage(
-  db: ReturnType<typeof requireMutation>['db'],
+  db: Awaited<ReturnType<typeof requireMutation>>['db'],
   productId: number,
   imageId: number,
 ): ProductImageRow {
@@ -22,9 +22,10 @@ function requireImage(
 }
 
 export const PUT = route(async (request: Request, { params }: Params) => {
-  const { db, user } = requireMutation(request);
-  const productId = parseId(params.id);
-  const imageId = parseId(params.imageId);
+  const { id: rawId, imageId: rawImageId } = await params;
+  const { db, user } = await requireMutation(request);
+  const productId = parseId(rawId);
+  const imageId = parseId(rawImageId);
   requireProduct(db, productId);
   const image = requireImage(db, productId, imageId);
 
@@ -55,9 +56,10 @@ export const PUT = route(async (request: Request, { params }: Params) => {
 
 /** Detaches the image from the product. The stored file stays: it may be shared. */
 export const DELETE = route(async (request: Request, { params }: Params) => {
-  const { db, user } = requireMutation(request);
-  const productId = parseId(params.id);
-  const imageId = parseId(params.imageId);
+  const { id: rawId, imageId: rawImageId } = await params;
+  const { db, user } = await requireMutation(request);
+  const productId = parseId(rawId);
+  const imageId = parseId(rawImageId);
   requireProduct(db, productId);
   const image = requireImage(db, productId, imageId);
 
