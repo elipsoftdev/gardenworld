@@ -75,7 +75,7 @@ export function HomeManager() {
   })})), [products]);
 
   return <>
-    <header className="admin-page-head"><div><p className="admin-kicker">Editor de contenido</p><h2>Home</h2><p>Controla por separado el orden de secciones y el orden de las cards dentro de cada colección.</p></div></header>
+    <header className="admin-page-head"><div><p className="admin-kicker">Editor de contenido</p><h2>Home</h2><p>Controla por separado el orden de secciones y el orden de las cards dentro de cada colección.</p></div><a className="admin-button admin-button--secondary" href="/" target="_blank" rel="noopener noreferrer">Ver Home DEV ↗</a></header>
     {error ? <div className="admin-alert" role="alert">{error}</div> : null}
     <div className="admin-alert" style={{background: '#e8eee7', borderColor: '#315148', color: '#315148'}}><strong>Nivel 1:</strong> orden de secciones. <strong>Nivel 2:</strong> orden de cards. Son configuraciones independientes.</div>
     <div className="admin-home-layout">

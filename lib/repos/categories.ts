@@ -112,6 +112,7 @@ export function serializePublicCategory(row: CategoryRow) {
     displayOrder: row.display_order,
     seoTitle: row.seo_title,
     seoDescription: row.seo_description,
+    updatedAt: row.updated_at,
   };
 }
 
@@ -124,6 +125,43 @@ export function listPublicCategories(db: Db, options: { onlyHome?: boolean; only
       `SELECT ${COLUMNS} FROM categories WHERE ${clauses.join(' AND ')} ORDER BY display_order, name`,
     )
     .all() as CategoryRow[];
+}
+
+/** Public categories that can actually lead to at least one visible product. */
+export function listPopulatedPublicCategories(
+  db: Db,
+  options: { onlyHome?: boolean; onlyMenu?: boolean } = {},
+): CategoryRow[] {
+  const clauses = ['categories.published = 1'];
+  if (options.onlyHome) clauses.push('categories.show_on_home = 1');
+  if (options.onlyMenu) clauses.push('categories.show_in_menu = 1');
+  return db
+    .prepare(
+      `SELECT ${COLUMNS.split(', ').map((column) => `categories.${column.trim()}`).join(', ')}
+       FROM categories
+       WHERE ${clauses.join(' AND ')}
+         AND EXISTS (
+           SELECT 1 FROM products
+           WHERE products.category_id = categories.id
+             AND products.status = 'published'
+             AND products.published = 1
+             AND products.deleted_at IS NULL
+         )
+       ORDER BY categories.display_order, categories.name`,
+    )
+    .all() as CategoryRow[];
+}
+
+export function getPublicCategoryBySlug(db: Db, slug: string): CategoryRow | undefined {
+  return db
+    .prepare(`SELECT ${COLUMNS} FROM categories WHERE slug = ? AND published = 1`)
+    .get(slug.toLowerCase()) as CategoryRow | undefined;
+}
+
+export function listPublicChildCategories(db: Db, parentId: number): CategoryRow[] {
+  return db
+    .prepare(`SELECT ${COLUMNS} FROM categories WHERE parent_id = ? AND published = 1 ORDER BY display_order, name`)
+    .all(parentId) as CategoryRow[];
 }
 
 /** Applies an explicit ordering to the given ids in one transaction. */

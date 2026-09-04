@@ -824,13 +824,35 @@ describe('password change', () => {
 });
 
 describe('public pages still render', () => {
-  test('serves the marketing site and SEO files', async () => {
-    for (const pathname of ['/', '/productos/', '/robots.txt', '/sitemap.xml']) {
+  test('serves dynamic public routes and SEO files', async () => {
+    for (const pathname of ['/', '/productos/', '/productos/base-premium-silver/', '/productos/categoria/riego/', '/nosotros/', '/robots.txt', '/sitemap.xml']) {
       const response = await fetch(`${BASE}${pathname}`);
       assert.equal(response.status, 200, pathname);
     }
 
+    const home = await (await fetch(`${BASE}/`)).text();
+    assert.match(home, /data-section-key="offers"/);
+    assert.doesNotMatch(home, /Producto borrador/);
+
+    const catalog = await (await fetch(`${BASE}/productos/`)).text();
+    assert.match(catalog, /Base Premium Silver/);
+    assert.doesNotMatch(catalog, /Borrador oculto/);
+
+    const product = await (await fetch(`${BASE}/productos/base-premium-silver/`)).text();
+    assert.match(product, /Hola%20Garden%20World%2C%20estoy%20interesado%20en%20Base%20Premium%20Silver/);
+    assert.match(product, /BreadcrumbList/);
+    assert.match(product, /name="robots" content="noindex, nofollow"/);
+    assert.doesNotMatch(product, /rel="canonical"/);
+
+    const about = await (await fetch(`${BASE}/nosotros/`)).text();
+    assert.match(about, /Diseñamos para que el exterior/);
+
+    assert.equal((await fetch(`${BASE}/productos/no-existe/`)).status, 404);
+    assert.equal((await fetch(`${BASE}/productos/categoria/no-existe/`)).status, 404);
+
     const robots = await (await fetch(`${BASE}/robots.txt`)).text();
     assert.match(robots, /Disallow: \//);
+    const sitemap = await (await fetch(`${BASE}/sitemap.xml`)).text();
+    assert.doesNotMatch(sitemap, /gardenworld\.online/);
   });
 });

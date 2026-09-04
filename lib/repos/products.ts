@@ -181,6 +181,7 @@ export function serializePublicProduct(
     seoTitle: row.seo_title,
     seoDescription: row.seo_description,
     indexable: row.indexable === 1,
+    updatedAt: row.updated_at,
     images: (extras.images ?? []).map((image) => ({
       url: publicUrlFor(image.path),
       altText: image.alt_text,
@@ -240,4 +241,87 @@ export function listCuratedPublicProducts(db: Db, flag: 'featured' | 'on_sale' |
         LIMIT ?`,
     )
     .all(limit) as ProductRow[];
+}
+
+export type PublicProductQuery = {
+  categoryId?: number;
+  categorySlug?: string;
+  search?: string;
+  featured?: boolean;
+  onSale?: boolean;
+  newArrival?: boolean;
+  limit?: number;
+  offset?: number;
+};
+
+/** Shared public catalog query used by Server Components and HTTP routes. */
+export function listPublicProducts(db: Db, options: PublicProductQuery = {}): ProductRow[] {
+  const clauses = [PUBLIC_VISIBILITY_SQL];
+  const params: (string | number)[] = [];
+
+  if (options.categoryId !== undefined) {
+    clauses.push('category_id = ?');
+    params.push(options.categoryId);
+  } else if (options.categorySlug) {
+    clauses.push('category_id IN (SELECT id FROM categories WHERE slug = ? AND published = 1)');
+    params.push(options.categorySlug);
+  }
+
+  if (options.search?.trim()) {
+    clauses.push('(name LIKE ? OR short_description LIKE ?)');
+    const pattern = `%${options.search.trim().replace(/[%_]/g, '').slice(0, 80)}%`;
+    params.push(pattern, pattern);
+  }
+  if (options.featured) clauses.push('featured = 1');
+  if (options.onSale) clauses.push('on_sale = 1');
+  if (options.newArrival) clauses.push('new_arrival = 1');
+
+  const paging = options.limit === undefined ? '' : ' LIMIT ? OFFSET ?';
+  if (options.limit !== undefined) params.push(options.limit, options.offset ?? 0);
+
+  return db
+    .prepare(
+      `SELECT * FROM products WHERE ${clauses.join(' AND ')}
+       ORDER BY featured DESC, featured_order, name COLLATE NOCASE${paging}`,
+    )
+    .all(...params) as ProductRow[];
+}
+
+export function countPublicProducts(db: Db, options: Omit<PublicProductQuery, 'limit' | 'offset'> = {}): number {
+  const clauses = [PUBLIC_VISIBILITY_SQL];
+  const params: (string | number)[] = [];
+  if (options.categoryId !== undefined) {
+    clauses.push('category_id = ?');
+    params.push(options.categoryId);
+  } else if (options.categorySlug) {
+    clauses.push('category_id IN (SELECT id FROM categories WHERE slug = ? AND published = 1)');
+    params.push(options.categorySlug);
+  }
+  if (options.search?.trim()) {
+    clauses.push('(name LIKE ? OR short_description LIKE ?)');
+    const pattern = `%${options.search.trim().replace(/[%_]/g, '').slice(0, 80)}%`;
+    params.push(pattern, pattern);
+  }
+  if (options.featured) clauses.push('featured = 1');
+  if (options.onSale) clauses.push('on_sale = 1');
+  if (options.newArrival) clauses.push('new_arrival = 1');
+  return (db.prepare(`SELECT COUNT(*) AS total FROM products WHERE ${clauses.join(' AND ')}`).get(...params) as { total: number }).total;
+}
+
+export function getPublicProductBySlug(db: Db, slug: string): ProductRow | undefined {
+  return db
+    .prepare(`SELECT * FROM products WHERE slug = ? AND ${PUBLIC_VISIBILITY_SQL}`)
+    .get(slug.toLowerCase()) as ProductRow | undefined;
+}
+
+export function listRelatedPublicProducts(db: Db, product: ProductRow, limit = 4): ProductRow[] {
+  if (product.category_id === null) return [];
+  return db
+    .prepare(
+      `SELECT * FROM products
+       WHERE category_id = ? AND id <> ? AND ${PUBLIC_VISIBILITY_SQL}
+       ORDER BY featured DESC, featured_order, name COLLATE NOCASE
+       LIMIT ?`,
+    )
+    .all(product.category_id, product.id, limit) as ProductRow[];
 }

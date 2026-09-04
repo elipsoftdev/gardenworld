@@ -1,237 +1,42 @@
-"use client";
+import type { Metadata } from 'next';
+import BeforeAfterSlider from './components/BeforeAfterSlider';
+import { ProductCard } from '@/components/catalog/ProductCard';
+import PublicShell, { WhatsAppIcon } from '@/components/public/PublicShell';
+import { getDb } from '@/lib/db';
+import { getPublicHomeSections, getPublicNavigationCategories, type PublicCategory, type PublicProduct } from '@/lib/public/catalog';
+import { getCanonical, getRobots, makeWhatsAppLink } from '@/lib/site';
 
-import { FormEvent, KeyboardEvent, PointerEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import BeforeAfterSlider from "./components/BeforeAfterSlider";
-import ProductDescriptionModal from "./components/ProductDescriptionModal";
-import ProductGallery, { type ProductGalleryImage } from "./components/ProductGallery";
+export const dynamic = 'force-dynamic';
 
-const WHATSAPP_NUMBER = "584224273369";
-const PRODUCT_NAME = "Base para manguera Garden World";
-const WHATSAPP_POSITION_KEY = "gardenworld-whatsapp-position";
-const DESKTOP_BREAKPOINT = 1181;
-const WHATSAPP_DRAG_MARGIN = 16;
-
-type ProductKey = "premium-silver" | "black";
-type Product = {
-  key: ProductKey;
-  name: string;
-  features: string[];
-  fullDescription: string;
-  regularPrice: string;
-  promotionalPrice: string;
-  color: string;
-  images: ProductGalleryImage[];
-};
-
-const PRODUCTS: Product[] = [
-  {
-    key: "premium-silver",
-    name: "Base Premium Silver",
-    features: ["Acero inoxidable grado 304", "Espesor robusto de 3 mm", "Alta resistencia a la corrosión", "Ideal para humedad, salitre e intemperie", "Acabado metálico premium y duradero"],
-    fullDescription: "Fabricada en acero inoxidable grado 304 con un robusto espesor de 3 mm, esta base está diseñada para desafiar la intemperie más exigente. Ofrece una resistencia excepcional a la corrosión, el salitre y la humedad constante, garantizando una vida útil prolongada y un soporte firme que no se deforma ni pierde su elegancia metálica con los años.",
-    regularPrice: "US$160",
-    promotionalPrice: "US$140",
-    color: "#c7c8c4",
-    images: [
-      { src: "/images/products/premium-silver-product-main.webp", alt: "Base Premium Silver Garden World con manguera azul instalada, vista frontal", label: "Vista frontal instalada", fit: "cover" },
-      { src: "/images/products/premium-silver-isolated.webp", alt: "Base Premium Silver Garden World en acero inoxidable, vista frontal", label: "Vista frontal", fit: "contain" },
-      { src: "/images/products/premium-silver-garden.webp", alt: "Base Premium Silver Garden World instalada con manguera azul en un jardín", label: "En jardín", fit: "cover" },
-      { src: "/images/products/premium-silver-wood-garden.webp", alt: "Base Premium Silver Garden World instalada con manguera azul frente a una pared de madera", label: "Detalle exterior", fit: "cover" },
-    ],
-  },
-  {
-    key: "black",
-    name: "Base Black",
-    features: ["Acero al carbono de alta resistencia", "Espesor robusto de 3 mm", "Pintura en polvo electrostática horneada", "Resistente a la intemperie", "Acabado negro mate moderno y duradero"],
-    fullDescription: "Construida en acero al carbono de 3 mm de alta resistencia y protegida con recubrimiento en polvo electrostático horneado, esta base combina solidez estructural con un acabado negro mate sofisticado. Está diseñada para resistir la intemperie y mantener tu jardín ordenado con una presencia moderna, sólida y duradera.",
-    regularPrice: "US$145",
-    promotionalPrice: "US$125",
-    color: "#292b28",
-    images: [
-      { src: "/images/products/black-product-main.webp", alt: "Base Black Garden World con manguera azul instalada, vista frontal", label: "Vista frontal instalada", fit: "cover" },
-      { src: "/images/products/black-isolated.webp", alt: "Base Black Garden World, vista frontal del producto", label: "Vista frontal", fit: "contain" },
-      { src: "/images/products/black-orange-hose.webp", alt: "Base Black Garden World instalada con manguera naranja", label: "Instalada", fit: "cover" },
-      { src: "/images/products/black-dark-hose.webp", alt: "Base Black Garden World instalada con manguera negra en ambiente oscuro", label: "Ambiente oscuro", fit: "cover" },
-      { src: "/images/products/black-water-detail.webp", alt: "Detalle del acabado negro de Base Black Garden World con gotas de agua", label: "Detalle de acabado", fit: "cover" },
-      { src: "/images/products/black-garden-tools.webp", alt: "Base Black Garden World instalada con manguera azul y herramientas de jardín", label: "En jardín", fit: "cover" },
-    ],
-  },
-];
-
-const NAV_ITEMS = [
-  { label: "Bases", href: "#estilos" },
-  { label: "Elige tu estilo", href: "#estilos" },
-  { label: "Cotizar", href: "#cotizar" },
-];
-
-function makeWhatsAppLink(message: string) {
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+export function generateMetadata(): Metadata {
+  const title = 'Garden World | Diseño y funcionalidad para espacios exteriores';
+  const description = 'Diseño, orden y funcionalidad para disfrutar mejor tus jardines y espacios exteriores.';
+  const canonical = getCanonical('/');
+  return { title, description, alternates: canonical ? { canonical } : undefined, robots: getRobots(), openGraph: { type: 'website', locale: 'es_VE', siteName: 'Garden World', url: canonical, title, description }, twitter: { card: 'summary_large_image', title, description } };
 }
 
-function WhatsAppIcon() {
-  return <svg viewBox="0 0 24 24" aria-hidden="true" className="wa-icon"><path fill="currentColor" d="M20.5 3.5A11.8 11.8 0 0 0 12.1 0C5.6 0 .3 5.3.3 11.8c0 2.1.6 4.2 1.6 6L.2 24l6.3-1.7a11.8 11.8 0 0 0 5.6 1.4c6.5 0 11.8-5.3 11.8-11.8 0-3.2-1.2-6.1-3.4-8.4Zm-8.4 18.2c-1.8 0-3.6-.5-5.2-1.4l-.4-.2-3.7 1 1-3.6-.2-.4a9.7 9.7 0 1 1 8.5 4.6Zm5.3-7.3c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.2-.2.3-.8.9-1 1.1-.2.2-.4.2-.7.1-1.9-.9-3.1-1.7-4.3-3.9-.3-.5.3-.5.8-1.6.1-.2 0-.4 0-.6l-.9-2.1c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.2-1.2 2.9s1.3 3.4 1.4 3.6c.2.2 2.5 3.8 6 5.3 2.2.9 3 .9 4.1.8.7-.1 1.7-.7 1.9-1.3.2-.6.2-1.2.2-1.3-.1-.1-.3-.2-.6-.3Z" /></svg>;
+function ProductCollection({ sectionKey, items }: { sectionKey: string; items: PublicProduct[] }) {
+  const variant = sectionKey === 'offers' ? 'offer' : sectionKey === 'featured' ? 'featured' : 'catalog';
+  const layout = items.length >= 4 ? 'dynamic-rail' : `dynamic-grid dynamic-grid--${items.length}`;
+  return <div className={layout}>{items.map((product) => <ProductCard key={product.id} variant={variant} href={`/productos/${product.slug}/`} product={{ ...product, imageUrl: product.mainImageUrl, imageAlt: product.name }} />)}</div>;
 }
 
-function Brand({ inverse = false }: { inverse?: boolean }) {
-  return <span className={`brand${inverse ? " brand-inverse" : ""}`}><img src="/images/brand/garden-world-logo-original.png" alt="" aria-hidden="true" className="brand-mark" /><span>Garden World</span></span>;
+function CategoryCollection({ items }: { items: PublicCategory[] }) {
+  return <div className="category-grid">{items.map((category) => <a className="category-tile" key={category.id} href={`/productos/categoria/${category.slug}/`}><div className="category-tile__media">{category.imageUrl ? <img src={category.imageUrl} alt="" /> : <span aria-hidden="true">GW</span>}</div><div className="category-tile__copy"><p>Explorar categoría</p><h3>{category.name}</h3>{category.description ? <span>{category.description}</span> : null}<strong>Explorar <i aria-hidden="true">→</i></strong></div></a>)}</div>;
 }
 
 export default function Home() {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [inlineWhatsAppVisible, setInlineWhatsAppVisible] = useState(false);
-  const [productKey, setProductKey] = useState<ProductKey>("premium-silver");
-  const [descriptionOpen, setDescriptionOpen] = useState(false);
-  const [quantity, setQuantity] = useState("1");
-  const [city, setCity] = useState("");
-  const [buyer, setBuyer] = useState("Hogar");
-  const [whatsappPosition, setWhatsappPosition] = useState<{ left: number; top: number } | null>(null);
-  const [whatsappDragging, setWhatsappDragging] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const menuButtonRef = useRef<HTMLButtonElement>(null);
-  const descriptionButtonRef = useRef<HTMLButtonElement | null>(null);
-  const whatsappButtonRef = useRef<HTMLAnchorElement>(null);
-  const whatsappDragRef = useRef<{ pointerId: number; startX: number; startY: number; lastX: number; lastY: number; startLeft: number; startTop: number; moved: boolean } | null>(null);
-  const suppressWhatsAppClickRef = useRef(false);
-  const selectedProduct = PRODUCTS.find((product) => product.key === productKey) ?? PRODUCTS[0];
-  const productWhatsApp = makeWhatsAppLink(`Hola Garden World, quiero cotizar la ${selectedProduct.name}. ¿Me comparten disponibilidad y próximos pasos?`);
-  const quoteMessage = useMemo(() => {
-    const lines = ["Hola Garden World,", "", "Quiero cotizar:", `· Producto: ${PRODUCT_NAME}`, `· Modelo: ${selectedProduct.name}`, `· Cantidad: ${quantity || "1"}`];
-    if (city.trim()) lines.push(`· Ciudad: ${city.trim()}`);
-    lines.push(`· Tipo de cliente: ${buyer}`, "", "¿Me comparten disponibilidad y próximos pasos?");
-    return lines.join("\n");
-  }, [buyer, city, quantity, selectedProduct]);
-
-  const clampWhatsAppPosition = useCallback((left: number, top: number) => {
-    const button = whatsappButtonRef.current;
-    const width = button?.offsetWidth ?? 52;
-    const height = button?.offsetHeight ?? 52;
-    return {
-      left: Math.min(Math.max(WHATSAPP_DRAG_MARGIN, left), Math.max(WHATSAPP_DRAG_MARGIN, window.innerWidth - width - WHATSAPP_DRAG_MARGIN)),
-      top: Math.min(Math.max(WHATSAPP_DRAG_MARGIN, top), Math.max(WHATSAPP_DRAG_MARGIN, window.innerHeight - height - WHATSAPP_DRAG_MARGIN)),
-    };
-  }, []);
-
-  useEffect(() => {
-    try {
-      const stored = JSON.parse(window.localStorage.getItem(WHATSAPP_POSITION_KEY) ?? "null") as { left?: unknown; top?: unknown } | null;
-      if (typeof stored?.left === "number" && typeof stored.top === "number") {
-        setWhatsappPosition(clampWhatsAppPosition(stored.left, stored.top));
-      }
-    } catch {
-      window.localStorage.removeItem(WHATSAPP_POSITION_KEY);
-    }
-    const handleResize = () => setWhatsappPosition((previous) => {
-      if (!previous) return previous;
-      const next = clampWhatsAppPosition(previous.left, previous.top);
-      window.localStorage.setItem(WHATSAPP_POSITION_KEY, JSON.stringify(next));
-      return next;
-    });
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [clampWhatsAppPosition]);
-
-  const handleWhatsAppPointerDown = (event: PointerEvent<HTMLAnchorElement>) => {
-    if (window.innerWidth < DESKTOP_BREAKPOINT || event.button !== 0) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    whatsappDragRef.current = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, lastX: event.clientX, lastY: event.clientY, startLeft: whatsappPosition?.left ?? rect.left, startTop: whatsappPosition?.top ?? rect.top, moved: false };
-    event.currentTarget.setPointerCapture(event.pointerId);
-  };
-
-  const handleWhatsAppPointerMove = (event: PointerEvent<HTMLAnchorElement>) => {
-    const drag = whatsappDragRef.current;
-    if (!drag || drag.pointerId !== event.pointerId) return;
-    const deltaX = event.clientX - drag.startX;
-    const deltaY = event.clientY - drag.startY;
-    drag.lastX = event.clientX;
-    drag.lastY = event.clientY;
-    if (!drag.moved && Math.hypot(deltaX, deltaY) < 4) return;
-    drag.moved = true;
-    setWhatsappDragging(true);
-    setWhatsappPosition(clampWhatsAppPosition(drag.startLeft + deltaX, drag.startTop + deltaY));
-  };
-
-  const finishWhatsAppPointer = (event: PointerEvent<HTMLAnchorElement>) => {
-    const drag = whatsappDragRef.current;
-    if (!drag || drag.pointerId !== event.pointerId) return;
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
-    if (drag.moved) {
-      suppressWhatsAppClickRef.current = true;
-      const position = clampWhatsAppPosition(drag.startLeft + drag.lastX - drag.startX, drag.startTop + drag.lastY - drag.startY);
-      setWhatsappPosition(position);
-      window.localStorage.setItem(WHATSAPP_POSITION_KEY, JSON.stringify(position));
-    }
-    whatsappDragRef.current = null;
-    setWhatsappDragging(false);
-  };
-
-  const handleWhatsAppClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    if (!suppressWhatsAppClickRef.current) return;
-    event.preventDefault();
-    suppressWhatsAppClickRef.current = false;
-  };
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 24);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    const observer = new IntersectionObserver((entries) => entries.forEach((entry) => { if (entry.isIntersecting) { entry.target.classList.add("is-visible"); observer.unobserve(entry.target); } }), { threshold: 0.12, rootMargin: "0px 0px -5%" });
-    document.querySelectorAll("[data-reveal]").forEach((element) => observer.observe(element));
-    return () => { window.removeEventListener("scroll", handleScroll); observer.disconnect(); };
-  }, []);
-
-  useEffect(() => {
-    const ctas = Array.from(document.querySelectorAll<HTMLElement>("[data-whatsapp-cta]"));
-    const visibleCtas = new Set<Element>();
-    const observer = new IntersectionObserver((entries) => { entries.forEach((entry) => entry.isIntersecting ? visibleCtas.add(entry.target) : visibleCtas.delete(entry.target)); setInlineWhatsAppVisible(visibleCtas.size > 0); }, { threshold: 0 });
-    ctas.forEach((cta) => observer.observe(cta));
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.requestAnimationFrame(() => menuRef.current?.querySelector<HTMLElement>("button, a")?.focus());
-    return () => { document.body.style.overflow = previousOverflow; };
-  }, [menuOpen]);
-
-  const closeDescription = useCallback(() => setDescriptionOpen(false), []);
-  const selectProduct = (nextProduct: ProductKey) => { closeDescription(); setProductKey(nextProduct); };
-  const closeMenu = () => { setMenuOpen(false); window.requestAnimationFrame(() => menuButtonRef.current?.focus()); };
-  const handleMenuKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "Escape") { event.preventDefault(); closeMenu(); return; }
-    if (event.key !== "Tab" || !menuRef.current) return;
-    const focusable = Array.from(menuRef.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'));
-    const first = focusable[0]; const last = focusable[focusable.length - 1];
-    if (!first || !last) return;
-    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-    if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
-  };
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); window.open(makeWhatsAppLink(quoteMessage), "_blank", "noopener,noreferrer"); };
-
-  return <>
-    <div className="commercial-bar" aria-label="Información comercial"><div className="commercial-inner"><span>Envíos nacionales</span><span>Bases Garden World</span><span>Atención por WhatsApp</span></div></div>
-    <header className={`site-header${scrolled ? " is-scrolled" : ""}`} aria-hidden={menuOpen || descriptionOpen}>
-      <a className="brand-link" href="/" aria-label="Garden World, inicio"><Brand /></a>
-      <nav className="desktop-nav" aria-label="Navegación principal">{NAV_ITEMS.map((item) => <a key={item.label} href={item.href}>{item.label}</a>)}</nav>
-      <a className="button button-small header-quote" href="#cotizar">Cotizar <span aria-hidden="true">↗</span></a>
-      <button ref={menuButtonRef} className="menu-trigger" type="button" aria-label="Abrir menú" aria-expanded={menuOpen} aria-controls="mobile-menu" onClick={() => setMenuOpen(true)}><span>Menú</span><span className="menu-lines" aria-hidden="true"><i /><i /></span></button>
-    </header>
-    <div ref={menuRef} id="mobile-menu" className={`mobile-menu${menuOpen ? " is-open" : ""}`} role="dialog" aria-modal="true" aria-label="Menú principal" aria-hidden={!menuOpen} onKeyDown={handleMenuKeyDown}>
-      <div className="mobile-menu-head"><Brand inverse /><button type="button" onClick={closeMenu} aria-label="Cerrar menú" className="menu-close">Cerrar <span aria-hidden="true">×</span></button></div>
-      <nav aria-label="Navegación móvil" className="mobile-menu-links">{NAV_ITEMS.map((item, index) => <a key={item.label} href={item.href} onClick={closeMenu} tabIndex={menuOpen ? 0 : -1}><span>0{index + 1}</span>{item.label}<i aria-hidden="true">↗</i></a>)}</nav>
-      <a className="button button-light mobile-menu-cta" href="#cotizar" onClick={closeMenu} tabIndex={menuOpen ? 0 : -1}>Cotizar con nosotros <span aria-hidden="true">↗</span></a>
-      <p className="mobile-menu-foot">Diseño, orden y funcionalidad para tu jardín.</p>
-    </div>
-    <main aria-hidden={menuOpen || descriptionOpen}>
-      <section className="hero" aria-labelledby="hero-title"><div className="hero-copy"><p className="eyebrow hero-eyebrow">Bases de mangueras Garden World</p><h1 id="hero-title">Tu mundo.<span>Tu jardín.</span></h1><p className="hero-intro">Diseño, orden y funcionalidad para disfrutar mejor los espacios exteriores.</p><div className="hero-actions"><a className="button" href="#estilos">Conocer nuestras bases <span aria-hidden="true">↓</span></a><a className="text-link" href="#cotizar">Cotizar <span aria-hidden="true">↗</span></a></div></div><div className="hero-visual" aria-label="Base para manguera Garden World"><div className="hero-image-wrap"><img src="/images/tu-mundo-tu-jardin.jpeg" alt="Base para manguera Garden World instalada entre plantas y flores en un jardín exterior" /></div><div className="hero-visual-note"><span>Producto principal</span><strong>Bases</strong><small>Diseño que ordena</small></div><svg className="hero-rings" viewBox="0 0 180 180" aria-hidden="true"><circle cx="90" cy="90" r="68" /><circle cx="90" cy="90" r="48" /><circle cx="90" cy="90" r="28" /></svg></div><p className="hero-side-note">Garden World · Venezuela</p></section>
+  const db = getDb();
+  const sections = getPublicHomeSections(db);
+  const navigationCategories = getPublicNavigationCategories(db);
+  const whatsapp = makeWhatsAppLink('Hola Garden World, quisiera conocer sus productos y recibir orientación.');
+  return <PublicShell categories={navigationCategories}>
+    <main id="contenido">
+      <section className="hero" aria-labelledby="hero-title"><div className="hero-copy"><p className="eyebrow hero-eyebrow">Garden World</p><h1 id="hero-title">Tu mundo.<span>Tu jardín.</span></h1><p className="hero-intro">Diseño, orden y funcionalidad para disfrutar mejor tus espacios exteriores.</p><div className="hero-actions"><a className="button" href="/productos/">Ver productos <span aria-hidden="true">→</span></a><a className="text-link" href={whatsapp} target="_blank" rel="noopener noreferrer">Hablar con nosotros <span aria-hidden="true">↗</span></a></div></div><div className="hero-visual" aria-label="Garden World en un espacio exterior"><div className="hero-image-wrap"><img src="/images/tu-mundo-tu-jardin.jpeg" alt="Solución Garden World instalada entre plantas y flores en un jardín exterior" /></div><div className="hero-visual-note"><span>Vida exterior</span><strong>Diseño</strong><small>que ordena</small></div><svg className="hero-rings" viewBox="0 0 180 180" aria-hidden="true"><circle cx="90" cy="90" r="68" /><circle cx="90" cy="90" r="48" /><circle cx="90" cy="90" r="28" /></svg></div><p className="hero-side-note">Garden World · Venezuela</p></section>
       <section className="before-after-section" aria-labelledby="before-after-title"><div className="container before-after-heading" data-reveal><p className="eyebrow">Diseño que pone orden</p><h2 id="before-after-title">El orden también se diseña.</h2><p>Una solución pensada para que lo que necesitas esté en su lugar y tu jardín siga siendo parte de lo que quieres ver.</p></div><div className="container before-after-frame" data-reveal><BeforeAfterSlider before="/images/before-after/garden-before.webp" after="/images/before-after/garden-after.webp" beforeAlt="Manguera azul desorganizada sobre el piso de un jardín antes de instalar una base Garden World." afterAlt="Manguera azul organizada sobre una base Garden World instalada en una pared exterior de jardín." /><div className="before-after-caption"><span>Desliza. Mira la diferencia.</span><strong>Menos desorden. Más jardín.</strong></div></div></section>
-<section className="section finishes-section" id="estilos" aria-labelledby="styles-title"><div className="container section-heading section-heading-row" data-reveal><div><p className="eyebrow">Bases Garden World</p><h2 id="styles-title">Elige tu estilo.</h2></div><p>Dos bases para integrar orden, material y carácter en tu espacio exterior.</p></div><div className="container finish-layout" data-reveal><ProductGallery key={selectedProduct.key} productName={selectedProduct.name} images={selectedProduct.images} /><div className="finish-panel"><div className="finish-current"><p>Modelo seleccionado</p><h3>{selectedProduct.name}</h3></div><ul className="product-specs" aria-label={`Características de ${selectedProduct.name}`}>{selectedProduct.features.map((feature) => <li key={feature}>{feature}</li>)}</ul><button ref={descriptionButtonRef} className="product-details-trigger" type="button" aria-haspopup="dialog" aria-expanded={descriptionOpen} onClick={() => setDescriptionOpen(true)}>Leer especificaciones <span aria-hidden="true">→</span></button><div className="price-block" aria-label={`Precio de ${selectedProduct.name}`}><div className="price-comparison"><div className="price-option price-before"><span>ANTES</span><del>{selectedProduct.regularPrice}</del></div><div className="price-option price-now"><span>AHORA</span><strong>{selectedProduct.promotionalPrice}</strong></div></div><span>Delivery gratis<sup>*</sup></span><span className="price-tax">Incluye IVA</span><small>Pago a tasa BCV</small><p><sup>*</sup>Delivery gratis en Gran Caracas.</p></div><div className="finish-options" role="group" aria-label="Elegir modelo de base">{PRODUCTS.map((product) => <button type="button" key={product.key} className={product.key === productKey ? "is-active" : ""} aria-pressed={product.key === productKey} onClick={() => selectProduct(product.key)}><span className="finish-swatch" style={{ backgroundColor: product.color }} aria-hidden="true" /><span>{product.name}</span></button>)}</div><a className="button button-wide" href={productWhatsApp} target="_blank" rel="noopener noreferrer" data-whatsapp-cta><WhatsAppIcon /> Cotiza esta base <span aria-hidden="true">↗</span></a></div></div></section>
-      <section className="quote-section" id="cotizar"><div className="container quote-grid"><div className="quote-copy" data-reveal><p className="eyebrow">Cotización · Contacto</p><h2>Cuéntanos qué necesitas.</h2><p>Selecciona una base y cantidad. La conversación continúa directamente por WhatsApp.</p><div className="quote-note"><span>01</span><p>Elige tu estilo.</p><span>02</span><p>Completa solo lo necesario.</p><span>03</span><p>Habla con un asesor.</p></div></div><form className="quote-form" onSubmit={handleSubmit} data-reveal><label><span>Producto</span><input value={PRODUCT_NAME} readOnly aria-readonly="true" /></label><div className="quote-form-row"><label><span>Modelo</span><select value={productKey} onChange={(event) => selectProduct(event.target.value as ProductKey)}>{PRODUCTS.map((product) => <option value={product.key} key={product.key}>{product.name}</option>)}</select></label><label><span>Cantidad</span><input type="number" min="1" inputMode="numeric" value={quantity} onChange={(event) => setQuantity(event.target.value)} /></label></div><div className="quote-form-row"><label><span>Ciudad <small>(opcional)</small></span><input type="text" autoComplete="address-level2" placeholder="Tu ciudad" value={city} onChange={(event) => setCity(event.target.value)} /></label><label><span>Tipo de cliente</span><select value={buyer} onChange={(event) => setBuyer(event.target.value)}><option>Hogar</option><option>Diseño exterior</option><option>Hotel / Desarrollo</option><option>Distribución / Mayorista</option></select></label></div><div className="message-preview" aria-live="polite"><span>Mensaje preparado</span><p>{quoteMessage}</p></div><button className="button button-wide" type="submit" data-whatsapp-cta><WhatsAppIcon /> Habla con un asesor <span aria-hidden="true">↗</span></button><p className="form-fineprint">No guardamos estos datos. El mensaje se abre en WhatsApp y tú decides si enviarlo.</p></form></div></section>
+      {sections.length > 0 ? <div className="dynamic-zone" aria-label="Selección del catálogo">{sections.map((section) => <section className={`dynamic-section dynamic-section--${section.sectionKey}`} key={section.sectionKey} data-section-key={section.sectionKey} data-reveal><div className="container"><div className="dynamic-heading"><div><p className="eyebrow">Selección Garden World</p><h2>{section.title || ({ featured: 'Destacados', categories: 'Categorías', offers: 'Ofertas', new_arrivals: 'Novedades' }[section.sectionKey] ?? 'Explorar')}</h2></div>{section.subtitle ? <p>{section.subtitle}</p> : null}</div>{section.sectionKey === 'categories' ? <CategoryCollection items={section.items as PublicCategory[]} /> : <ProductCollection sectionKey={section.sectionKey} items={section.items as PublicProduct[]} />}</div></section>)}</div> : null}
+      <section className="brand-story" aria-labelledby="brand-story-title"><div className="container brand-story__intro" data-reveal><p className="eyebrow">Garden World</p><h2 id="brand-story-title">Diseñado para vivir afuera.</h2><p>Objetos y soluciones que acompañan la vida exterior sin apartarse del lenguaje de tu espacio.</p></div><div className="container brand-pillars" data-reveal><article><span>01</span><h3>Diseño</h3><p>Funcionalidad que forma parte del espacio.</p></article><article><span>02</span><h3>Materiales</h3><p>Soluciones pensadas para el uso exterior.</p></article><article><span>03</span><h3>Atención</h3><p>Compra con acompañamiento humano.</p></article></div></section>
+      <section className="contact-band"><div className="container contact-band__inner" data-reveal><div><p className="eyebrow">Atención directa</p><h2>¿Necesitas ayuda para elegir?</h2><p>Cuéntanos qué necesitas y te ayudamos a encontrar la opción adecuada.</p></div><a className="button button-light" href={whatsapp} target="_blank" rel="noopener noreferrer" data-whatsapp-cta><WhatsAppIcon /> Hablar con Garden World por WhatsApp <span aria-hidden="true">↗</span></a></div></section>
     </main>
-    <ProductDescriptionModal isOpen={descriptionOpen} productName={selectedProduct.name} description={selectedProduct.fullDescription} openerRef={descriptionButtonRef} onClose={closeDescription} />
-    <footer className="site-footer" aria-hidden={menuOpen || descriptionOpen}><div className="container footer-top"><div className="footer-brand"><Brand inverse /><p>Diseño, orden y funcionalidad para tu jardín.</p></div><div className="footer-links"><div><p>Explorar</p>{NAV_ITEMS.map((item) => <a key={item.label} href={item.href}>{item.label}</a>)}</div><div><p>Atención</p><a href={makeWhatsAppLink("Hola Garden World, quiero cotizar una base para manguera.")} target="_blank" rel="noopener noreferrer">WhatsApp ↗</a><a href={makeWhatsAppLink("Hola Garden World, quiero cotizar una base para manguera.")} target="_blank" rel="noopener noreferrer">0422-GARDENW · 0422-427-3369</a><span>Venezuela</span></div><div><p>Corporativo</p><span>GARDEN WORLD, C.A.</span><span>RIF J508706625</span></div></div></div><div className="container footer-bottom"><span>© 2026 Garden World · Diseño y desarrollo web por <a href="https://elipsoft.us" target="_blank" rel="noopener noreferrer">Elipsoft LLC</a></span></div></footer>
-    <a ref={whatsappButtonRef} className={`whatsapp-fab${inlineWhatsAppVisible ? " is-suppressed" : ""}${whatsappDragging ? " is-dragging" : ""}`} style={whatsappPosition ? { left: `${whatsappPosition.left}px`, top: `${whatsappPosition.top}px`, right: "auto", bottom: "auto" } : undefined} href={makeWhatsAppLink("Hola Garden World, quiero cotizar una base para manguera.")} target="_blank" rel="noopener noreferrer" aria-label="Cotiza con nosotros por WhatsApp" aria-hidden={menuOpen || descriptionOpen || inlineWhatsAppVisible} tabIndex={menuOpen || descriptionOpen || inlineWhatsAppVisible ? -1 : undefined} onPointerDown={handleWhatsAppPointerDown} onPointerMove={handleWhatsAppPointerMove} onPointerUp={finishWhatsAppPointer} onPointerCancel={finishWhatsAppPointer} onClick={handleWhatsAppClick}><WhatsAppIcon /><span>Cotiza con nosotros</span></a>
-  </>;
+  </PublicShell>;
 }

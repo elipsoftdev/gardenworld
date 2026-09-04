@@ -3,7 +3,7 @@ import { fail, ok, route } from '@/lib/http/response';
 import {
   listProductImages,
   listProductSpecs,
-  PUBLIC_VISIBILITY_SQL,
+  getPublicProductBySlug,
   serializePublicProduct,
   type ProductRow,
 } from '@/lib/repos/products';
@@ -18,9 +18,7 @@ export const GET = route(async (_request: Request, { params }: Params) => {
   const db = getDb();
   const slug = rawSlug?.toLowerCase() ?? '';
 
-  const product = db
-    .prepare(`SELECT * FROM products WHERE slug = ? AND ${PUBLIC_VISIBILITY_SQL}`)
-    .get(slug) as ProductRow | undefined;
+  const product = getPublicProductBySlug(db, slug);
   if (!product) return fail('not_found', 'Product not found');
 
   const category = product.category_id

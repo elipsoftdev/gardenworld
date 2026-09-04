@@ -1,20 +1,17 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import { getSiteUrl, isDevelopmentSite } from '@/lib/site';
 
-const isDevelopment = process.env.SITE_ENV === 'development';
-const siteUrl =
-  process.env.SITE_URL ||
-  (isDevelopment ? 'https://dev.gardenworld.online' : 'https://gardenworld.online');
+const isDevelopment = isDevelopmentSite();
+const siteUrl = getSiteUrl();
 const homeUrl = `${siteUrl}/`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: 'Garden World | Bases para mangueras y diseño para tu jardín',
+  title: 'Garden World | Diseño para espacios exteriores',
   description:
-    'Bases para mangueras Garden World diseñadas para mantener tu jardín ordenado e integrar funcionalidad y diseño en tus espacios exteriores.',
-  alternates: {
-    canonical: '/',
-  },
+    'Diseño, orden y funcionalidad para disfrutar mejor tus jardines y espacios exteriores.',
+  alternates: isDevelopment ? undefined : { canonical: '/' },
   robots: {
     index: !isDevelopment,
     follow: !isDevelopment,
@@ -24,15 +21,13 @@ export const metadata: Metadata = {
     locale: 'es_VE',
     siteName: 'Garden World',
     url: '/',
-    title: 'Garden World | Bases para mangueras y diseño para tu jardín',
-    description:
-      'Bases para mangueras Garden World para ordenar y disfrutar mejor tu jardín.',
+    title: 'Garden World | Diseño para espacios exteriores',
+    description: 'Diseño, orden y funcionalidad para disfrutar mejor tus espacios exteriores.',
   },
   twitter: {
     card: 'summary',
-    title: 'Garden World | Bases para mangueras y diseño para tu jardín',
-    description:
-      'Bases para mangueras Garden World para ordenar y disfrutar mejor tu jardín.',
+    title: 'Garden World | Diseño para espacios exteriores',
+    description: 'Diseño, orden y funcionalidad para disfrutar mejor tus espacios exteriores.',
   },
 };
 
@@ -57,7 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   name: 'Garden World',
                   url: homeUrl,
                   inLanguage: 'es-VE',
-                  description: 'Bases para mangueras Garden World para espacios exteriores.',
+                  description: 'Diseño, orden y funcionalidad para jardines y espacios exteriores.',
                 },
                 {
                   '@type': 'Organization',
