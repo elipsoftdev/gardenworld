@@ -206,7 +206,7 @@
 .admin-auth { --admin-accent: #a55b3e; min-height: 100svh; padding: 1.25rem; display: grid; place-items: center; background: #f7f6f1; color: #17382f; font-family: Manrope, Arial, sans-serif; }
 .admin-auth__panel { width: min(100%, 420px); padding: clamp(1.8rem, 5vw, 3rem); background: #fffef9; border: 1px solid rgba(23,56,47,.15); box-shadow: 0 24px 70px rgba(12,41,34,.08); animation: admin-auth-in .55s cubic-bezier(.22,1,.36,1) both; }
 .admin-auth__brand { margin-bottom: 2.4rem; display: flex; align-items: center; gap: .75rem; }
-.admin-auth__brand span { width: 2.5rem; height: 2.5rem; display: grid; place-items: center; border: 1px solid #9aad91; border-radius: 50%; font-family: Newsreader, Georgia, serif; }
+.admin-auth__brand img { width: 2.5rem; height: 2.5rem; object-fit: contain; flex: 0 0 auto; }
 .admin-auth__brand strong { display: block; font-size: .76rem; letter-spacing: .12em; text-transform: uppercase; }
 .admin-auth__brand small { display: block; color: #66756f; font-size: .6rem; }
 .admin-auth h1 { margin: 0; font-family: Newsreader, Georgia, serif; font-size: 2.7rem; font-weight: 500; letter-spacing: -.04em; line-height: 1; }

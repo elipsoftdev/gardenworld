@@ -14,7 +14,7 @@ export default async function LoginPage() {
 
   return <main className="admin-auth">
     <section className="admin-auth__panel" aria-labelledby="login-title">
-      <div className="admin-auth__brand"><span>GW</span><div><strong>Garden World</strong><small>Administración</small></div></div>
+      <div className="admin-auth__brand"><img src="/images/brand/garden-world-logo-original.png" alt="" aria-hidden="true" /><div><strong>Garden World</strong><small>Administración</small></div></div>
       <p className="admin-kicker">Acceso privado</p>
       <h1 id="login-title">Bienvenido</h1>
       <p className="admin-auth__intro">Ingresa con tu cuenta administrativa para gestionar el catálogo.</p>
