@@ -17,8 +17,10 @@ before(() => {
   closeDb();
   const db = getDb();
   const categoryId = Number(db.prepare(`INSERT INTO categories (name, slug, published, show_on_home) VALUES ('Riego', 'riego', 1, 1)`).run().lastInsertRowid);
+  const hiddenCategoryId = Number(db.prepare(`INSERT INTO categories (name, slug, published, show_on_home, indexable) VALUES ('Interna', 'interna', 1, 1, 0)`).run().lastInsertRowid);
   db.prepare(`INSERT INTO products (name, slug, category_id, price, status, published, indexable) VALUES ('Visible', 'visible', ?, 20, 'published', 1, 1)`).run(categoryId);
   db.prepare(`INSERT INTO products (name, slug, category_id, price, status, published, indexable) VALUES ('No indexar', 'no-indexar', ?, 20, 'published', 1, 0)`).run(categoryId);
+  db.prepare(`INSERT INTO products (name, slug, category_id, price, status, published, indexable) VALUES ('Producto interno', 'producto-interno', ?, 20, 'published', 1, 1)`).run(hiddenCategoryId);
 });
 
 after(() => {
@@ -45,6 +47,7 @@ describe('environment-aware SEO', () => {
     assert.ok(routes.includes('https://gardenworld.online/'));
     assert.ok(routes.includes('https://gardenworld.online/nosotros/'));
     assert.ok(routes.includes('https://gardenworld.online/productos/categoria/riego/'));
+    assert.equal(routes.some((route) => route.includes('/categoria/interna/')), false);
     assert.ok(routes.includes('https://gardenworld.online/productos/visible/'));
     assert.equal(routes.some((route) => route.includes('no-indexar')), false);
     assert.equal(routes.some((route) => route.includes('/admin/')), false);

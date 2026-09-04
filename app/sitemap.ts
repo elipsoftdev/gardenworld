@@ -14,7 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${PRODUCTION_URL}/productos/` },
     { url: `${PRODUCTION_URL}/nosotros/` },
   ];
-  const categoryUrls = categories.map((category) => ({ url: `${PRODUCTION_URL}/productos/categoria/${category.slug}/`, lastModified: new Date(`${category.updatedAt}Z`) }));
+  const categoryUrls = categories.filter((category) => category.indexable).map((category) => ({ url: `${PRODUCTION_URL}/productos/categoria/${category.slug}/`, lastModified: new Date(`${category.updatedAt}Z`) }));
   const productUrls = products.filter((product) => product.indexable).map((product) => ({ url: `${PRODUCTION_URL}/productos/${product.slug}/`, lastModified: new Date(`${product.updatedAt}Z`) }));
   return [...base, ...categoryUrls, ...productUrls];
 }

@@ -157,4 +157,12 @@ CREATE INDEX idx_audit_created ON audit_log(created_at);
 CREATE INDEX idx_audit_entity ON audit_log(entity_type, entity_id);
 `,
   },
+  {
+    id: 2,
+    name: 'category_indexability',
+    sql: `
+ALTER TABLE categories ADD COLUMN indexable INTEGER NOT NULL DEFAULT 1 CHECK (indexable IN (0, 1));
+CREATE INDEX idx_categories_indexable ON categories(published, indexable, display_order);
+`,
+  },
 ];

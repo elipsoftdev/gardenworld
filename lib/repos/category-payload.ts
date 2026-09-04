@@ -66,6 +66,7 @@ export function parseCategoryPayload(
     ['published', 'published'],
     ['showInMenu', 'show_in_menu'],
     ['showOnHome', 'show_on_home'],
+    ['indexable', 'indexable'],
   ] as const) {
     if (!validator.has(field)) continue;
     const flag = validator.boolean(field);

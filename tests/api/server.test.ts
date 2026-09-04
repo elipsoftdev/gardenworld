@@ -313,6 +313,7 @@ describe('categories', () => {
     });
     assert.equal(response.status, 201, JSON.stringify(response.body));
     assert.equal(response.body.data.category.slug, 'riego');
+    assert.equal(response.body.data.category.indexable, true);
     categoryId = response.body.data.category.id;
   });
 

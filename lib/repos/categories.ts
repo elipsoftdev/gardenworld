@@ -15,12 +15,13 @@ export type CategoryRow = {
   display_order: number;
   seo_title: string | null;
   seo_description: string | null;
+  indexable: number;
   created_at: string;
   updated_at: string;
 };
 
 const COLUMNS = `id, parent_id, name, slug, description, image_path, published, show_in_menu,
-                 show_on_home, display_order, seo_title, seo_description, created_at, updated_at`;
+  show_on_home, display_order, seo_title, seo_description, indexable, created_at, updated_at`;
 
 export function listCategories(db: Db): CategoryRow[] {
   return db
@@ -96,6 +97,7 @@ export function serializeCategory(row: CategoryRow) {
     displayOrder: row.display_order,
     seoTitle: row.seo_title,
     seoDescription: row.seo_description,
+    indexable: row.indexable === 1,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -112,6 +114,7 @@ export function serializePublicCategory(row: CategoryRow) {
     displayOrder: row.display_order,
     seoTitle: row.seo_title,
     seoDescription: row.seo_description,
+    indexable: row.indexable === 1,
     updatedAt: row.updated_at,
   };
 }

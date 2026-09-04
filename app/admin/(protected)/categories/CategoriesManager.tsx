@@ -8,8 +8,8 @@ import { Modal } from '../../components/Modal';
 import { OrderList } from '../../components/OrderList';
 import { useAdmin } from '../../components/AdminShell';
 
-type CategoryForm = { name: string; slug: string; description: string; imagePath: string; parentId: string; published: boolean; showInMenu: boolean; showOnHome: boolean; seoTitle: string; seoDescription: string };
-const empty: CategoryForm = { name: '', slug: '', description: '', imagePath: '', parentId: '', published: false, showInMenu: false, showOnHome: false, seoTitle: '', seoDescription: '' };
+type CategoryForm = { name: string; slug: string; description: string; imagePath: string; parentId: string; published: boolean; showInMenu: boolean; showOnHome: boolean; indexable: boolean; seoTitle: string; seoDescription: string };
+const empty: CategoryForm = { name: '', slug: '', description: '', imagePath: '', parentId: '', published: false, showInMenu: false, showOnHome: false, indexable: true, seoTitle: '', seoDescription: '' };
 
 export function CategoriesManager() {
   const { notify } = useAdmin();
@@ -28,7 +28,7 @@ export function CategoriesManager() {
 
   function openEditor(category?: Category) {
     setError(''); setEditing(category ?? 'new');
-    setForm(category ? { name: category.name, slug: category.slug, description: category.description ?? '', imagePath: category.imagePath ?? '', parentId: category.parentId?.toString() ?? '', published: category.published, showInMenu: category.showInMenu, showOnHome: category.showOnHome, seoTitle: category.seoTitle ?? '', seoDescription: category.seoDescription ?? '' } : empty);
+    setForm(category ? { name: category.name, slug: category.slug, description: category.description ?? '', imagePath: category.imagePath ?? '', parentId: category.parentId?.toString() ?? '', published: category.published, showInMenu: category.showInMenu, showOnHome: category.showOnHome, indexable: category.indexable, seoTitle: category.seoTitle ?? '', seoDescription: category.seoDescription ?? '' } : empty);
   }
   function update<K extends keyof CategoryForm>(key: K, value: CategoryForm[K]) { setForm((current) => ({...current, [key]: value})); }
 
@@ -43,7 +43,7 @@ export function CategoriesManager() {
   async function save(event: React.FormEvent) {
     event.preventDefault(); setError(''); setBusy(true);
     try {
-      const payload = { name: form.name, slug: form.slug || undefined, description: form.description || null, imagePath: form.imagePath || null, parentId: form.parentId ? Number(form.parentId) : null, published: form.published, showInMenu: form.showInMenu, showOnHome: form.showOnHome, seoTitle: form.seoTitle || null, seoDescription: form.seoDescription || null };
+      const payload = { name: form.name, slug: form.slug || undefined, description: form.description || null, imagePath: form.imagePath || null, parentId: form.parentId ? Number(form.parentId) : null, published: form.published, showInMenu: form.showInMenu, showOnHome: form.showOnHome, indexable: form.indexable, seoTitle: form.seoTitle || null, seoDescription: form.seoDescription || null };
       const endpoint = editing === 'new' ? '/api/admin/categories' : `/api/admin/categories/${editing?.id}`;
       await adminApi(endpoint, {method: editing === 'new' ? 'POST' : 'PUT', body: JSON.stringify(payload)});
       notify('Categoría guardada'); setEditing(null); await load();
@@ -95,7 +95,7 @@ export function CategoriesManager() {
           <div className="admin-field admin-field--full"><label htmlFor="category-seo-title">SEO title</label><input id="category-seo-title" value={form.seoTitle} onChange={(e) => update('seoTitle', e.target.value)}/></div>
           <div className="admin-field admin-field--full"><label htmlFor="category-seo-description">SEO description</label><textarea id="category-seo-description" value={form.seoDescription} onChange={(e) => update('seoDescription', e.target.value)}/></div>
         </div>
-        <div className="admin-checks"><label className="admin-check"><input type="checkbox" checked={form.published} onChange={(e) => update('published', e.target.checked)}/>Publicada</label><label className="admin-check"><input type="checkbox" checked={form.showInMenu} onChange={(e) => update('showInMenu', e.target.checked)}/>Mostrar en menú</label><label className="admin-check"><input type="checkbox" checked={form.showOnHome} onChange={(e) => update('showOnHome', e.target.checked)}/>Mostrar en Home</label></div>
+        <div className="admin-checks"><label className="admin-check"><input type="checkbox" checked={form.published} onChange={(e) => update('published', e.target.checked)}/>Publicada</label><label className="admin-check"><input type="checkbox" checked={form.showInMenu} onChange={(e) => update('showInMenu', e.target.checked)}/>Mostrar en menú</label><label className="admin-check"><input type="checkbox" checked={form.showOnHome} onChange={(e) => update('showOnHome', e.target.checked)}/>Mostrar en Home</label><label className="admin-check"><input type="checkbox" checked={form.indexable} onChange={(e) => update('indexable', e.target.checked)}/>Permitir indexación</label></div>
         <div className="admin-modal__actions"><button type="button" className="admin-button admin-button--quiet" disabled={busy} onClick={() => setEditing(null)}>Cancelar</button><button type="submit" className="admin-button" disabled={busy || form.name.length < 2}>{busy ? 'Guardando…' : 'Guardar categoría'}</button></div>
       </form>
     </Modal>

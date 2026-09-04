@@ -78,6 +78,7 @@ export type Category = {
   displayOrder: number;
   seoTitle: string | null;
   seoDescription: string | null;
+  indexable: boolean;
 };
 
 export type HomeSection = {

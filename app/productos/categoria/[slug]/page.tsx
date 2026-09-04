@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = page.category.seoTitle || `${page.category.name} | Garden World`;
   const description = page.category.seoDescription || page.category.description || `Explora ${page.category.name} en el catálogo Garden World.`;
   const canonical = getCanonical(`/productos/categoria/${page.category.slug}/`);
-  return { title, description, alternates: canonical ? { canonical } : undefined, robots: getRobots(), openGraph: { title, description, url: canonical }, twitter: { card: 'summary_large_image', title, description } };
+  return { title, description, alternates: canonical ? { canonical } : undefined, robots: getRobots(page.category.indexable), openGraph: { title, description, url: canonical }, twitter: { card: 'summary_large_image', title, description } };
 }
 
 export default async function CategoryPage({ params }: Props) {
