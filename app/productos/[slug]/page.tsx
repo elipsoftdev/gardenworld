@@ -44,6 +44,11 @@ export default async function ProductPage({ params }: Props) {
   if (gallery.length === 0 && product.mainImageUrl) gallery.push({ src: product.mainImageUrl, alt: product.name, label: 'Vista principal', fit: 'contain' });
   const benefits = textItems(product.benefits);
   const uses = textItems(product.uses);
+  const quickSpecs = (benefits.length > 0
+    ? benefits
+    : product.specs.map((spec) => `${spec.name}: ${spec.value}`)
+  ).slice(0, 4);
+  const showPriceComparison = product.onSale && product.compareAtPrice !== null;
   const validOffer = product.price > 0 && /^[A-Z]{3}$/.test(product.currency) && schemaAvailability[product.stockStatus];
   const productSchema = product.indexable ? { '@context': 'https://schema.org', '@type': 'Product', name: product.name, url: absoluteUrl(`/productos/${product.slug}/`), ...(product.shortDescription || product.description ? { description: product.shortDescription || product.description } : {}), ...(product.sku ? { sku: product.sku } : {}), ...(product.brand ? { brand: { '@type': 'Brand', name: product.brand } } : {}), ...(product.mainImageUrl ? { image: [absoluteUrl(product.mainImageUrl)] } : {}), ...(validOffer ? { offers: { '@type': 'Offer', price: product.price, priceCurrency: product.currency, availability: schemaAvailability[product.stockStatus], url: absoluteUrl(`/productos/${product.slug}/`) } } : {}) } : null;
 
@@ -52,8 +57,26 @@ export default async function ProductPage({ params }: Props) {
     <main id="contenido" className="public-page product-page">
       {productSchema ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} /> : null}
       <div className="container"><Breadcrumbs items={breadcrumbItems} /></div>
-      <section className="container product-hero"><div className="product-hero__gallery">{gallery.length > 0 ? <ProductGallery productName={product.name} images={gallery} /> : <div className="product-image-empty" aria-label="Producto sin imagen"><span>GW</span><p>Imagen pendiente</p></div>}</div><div className="product-summary"><p className="eyebrow">{category?.name || 'Garden World'}</p><h1>{product.name}</h1>{product.shortDescription ? <p className="product-lead">{product.shortDescription}</p> : null}<div className="product-price">{product.onSale && product.compareAtPrice ? <s>{formatMoney(product.compareAtPrice, product.currency)}</s> : null}<strong>{product.price > 0 ? formatMoney(product.price, product.currency) : 'Precio a consultar'}</strong></div><dl className="product-facts">{product.sku ? <><dt>SKU</dt><dd>{product.sku}</dd></> : null}<dt>Disponibilidad</dt><dd>{availabilityLabels[product.stockStatus] || 'Consultar disponibilidad'}</dd></dl><a className="button button-wide" href={whatsapp} target="_blank" rel="noopener noreferrer" data-whatsapp-cta><WhatsAppIcon /> Consultar por WhatsApp <span aria-hidden="true">↗</span></a></div></section>
-      <div className="container product-details">{benefits.length > 0 ? <section><p className="eyebrow">Beneficios</p><h2>Diseñado para el uso cotidiano.</h2><ul>{benefits.map((benefit) => <li key={benefit}>{benefit}</li>)}</ul></section> : null}{product.description ? <section><p className="eyebrow">Descripción</p><h2>Sobre este producto.</h2><p>{product.description}</p></section> : null}{uses.length > 0 ? <section><p className="eyebrow">Usos</p><h2>Cómo integrarlo.</h2><ul>{uses.map((use) => <li key={use}>{use}</li>)}</ul></section> : null}{product.specs.length > 0 ? <section><p className="eyebrow">Especificaciones</p><h2>Detalles.</h2><dl>{product.specs.map((spec) => <div key={`${spec.name}-${spec.displayOrder}`}><dt>{spec.name}</dt><dd>{spec.value}</dd></div>)}</dl></section> : null}{product.deliveryText || product.warrantyText ? <section><p className="eyebrow">Compra y entrega</p><h2>Información disponible.</h2>{product.deliveryText ? <div><h3>Entrega</h3><p>{product.deliveryText}</p></div> : null}{product.warrantyText ? <div><h3>Garantía</h3><p>{product.warrantyText}</p></div> : null}</section> : null}</div>
+      <section className="container product-hero">
+        <div className="product-hero__gallery">{gallery.length > 0 ? <ProductGallery productName={product.name} images={gallery} /> : <div className="product-image-empty" aria-label="Producto sin imagen"><span>GW</span><p>Imagen pendiente</p></div>}</div>
+        <div className="product-summary">
+          <p className="eyebrow">{category?.name || 'Garden World'}</p>
+          <h1>{product.name}</h1>
+          {product.shortDescription ? <p className="product-lead">{product.shortDescription}</p> : null}
+          {quickSpecs.length > 0 ? <ul className="product-summary__specs" aria-label={`Características de ${product.name}`}>{quickSpecs.map((spec) => <li key={spec}>{spec}</li>)}</ul> : null}
+          {product.specs.length > 0 ? <a className="product-summary__details-link" href="#especificaciones">Leer especificaciones <span aria-hidden="true">→</span></a> : null}
+          <div className={`product-price${showPriceComparison ? ' product-price--comparison' : ''}`} aria-label={`Precio de ${product.name}`}>
+            {showPriceComparison ? <div className="product-price__option product-price__before"><span>ANTES</span><s>{formatMoney(product.compareAtPrice!, product.currency)}</s></div> : null}
+            <div className="product-price__option product-price__now"><span>{showPriceComparison ? 'AHORA' : 'PRECIO'}</span><strong>{product.price > 0 ? formatMoney(product.price, product.currency) : 'Precio a consultar'}</strong></div>
+          </div>
+          <div className="product-summary__commercial">
+            {product.deliveryText ? <p>{product.deliveryText}</p> : null}
+            <dl className="product-facts"><dt>Disponibilidad</dt><dd>{availabilityLabels[product.stockStatus] || 'Consultar disponibilidad'}</dd>{product.sku ? <><dt>SKU</dt><dd>{product.sku}</dd></> : null}</dl>
+          </div>
+          <a className="button button-wide" href={whatsapp} target="_blank" rel="noopener noreferrer" data-whatsapp-cta><WhatsAppIcon /> Consultar por WhatsApp <span aria-hidden="true">↗</span></a>
+        </div>
+      </section>
+      <div className="container product-details">{benefits.length > 0 ? <section><p className="eyebrow">Beneficios</p><h2>Diseñado para el uso cotidiano.</h2><ul>{benefits.map((benefit) => <li key={benefit}>{benefit}</li>)}</ul></section> : null}{product.description ? <section><p className="eyebrow">Descripción</p><h2>Sobre este producto.</h2><p>{product.description}</p></section> : null}{uses.length > 0 ? <section><p className="eyebrow">Usos</p><h2>Cómo integrarlo.</h2><ul>{uses.map((use) => <li key={use}>{use}</li>)}</ul></section> : null}{product.specs.length > 0 ? <section id="especificaciones"><p className="eyebrow">Especificaciones</p><h2>Detalles.</h2><dl>{product.specs.map((spec) => <div key={`${spec.name}-${spec.displayOrder}`}><dt>{spec.name}</dt><dd>{spec.value}</dd></div>)}</dl></section> : null}{product.deliveryText || product.warrantyText ? <section><p className="eyebrow">Compra y entrega</p><h2>Información disponible.</h2>{product.deliveryText ? <div><h3>Entrega</h3><p>{product.deliveryText}</p></div> : null}{product.warrantyText ? <div><h3>Garantía</h3><p>{product.warrantyText}</p></div> : null}</section> : null}</div>
       {related.length > 0 ? <section className="related-products"><div className="container"><div className="dynamic-heading"><div><p className="eyebrow">Sigue explorando</p><h2>Productos relacionados</h2></div></div><div className="catalog-grid">{related.map((item) => <ProductCard key={item.id} href={`/productos/${item.slug}/`} variant="catalog" product={{ ...item, imageUrl: item.mainImageUrl, imageAlt: item.name }} />)}</div></div></section> : null}
     </main>
   </PublicShell>;
