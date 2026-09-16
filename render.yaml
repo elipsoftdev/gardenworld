@@ -1,8 +1,35 @@
 services:
   - type: web
-    name: garden-world-mvp
-    runtime: static
+    name: garden-world-prod
+    runtime: node
+    plan: 0.5c-512mb
+    branch: release/prod-v1
     buildCommand: npm ci && npm run build
-    staticPublishPath: ./out
-    branch: main
-    autoDeploy: true
+    startCommand: npm start
+    healthCheckPath: /api/health/
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SITE_ENV
+        value: production
+      - key: SITE_URL
+        sync: false
+      - key: DATABASE_PATH
+        value: /var/data/gardenworld.db
+      - key: UPLOAD_DIR
+        value: /var/data/uploads
+      - key: ENABLE_DEV_SEED
+        value: "false"
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      - key: BOOTSTRAP_SUPERADMIN_NAME
+        value: Elipsoft
+      - key: BOOTSTRAP_SUPERADMIN_EMAIL
+        sync: false
+      - key: BOOTSTRAP_SUPERADMIN_PASSWORD
+        sync: false
+    disk:
+      name: garden-world-data
+      mountPath: /var/data
+      sizeGB: 1
