@@ -12,6 +12,7 @@ export function LoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -45,7 +46,12 @@ export function LoginForm() {
     </div>
     <div className="admin-field">
       <label htmlFor="login-password">Contraseña</label>
-      <input id="login-password" name="password" type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} disabled={loading}/>
+      <div style={{position:'relative'}}>
+        <input id="login-password" name="password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} disabled={loading} style={{paddingRight:'3.25rem'}}/>
+        <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} aria-pressed={showPassword} disabled={loading} style={{position:'absolute',right:'.55rem',top:'50%',transform:'translateY(-50%)',width:'2.25rem',height:'2.25rem',border:0,background:'transparent',display:'grid',placeItems:'center',cursor:'pointer'}}>
+          <span aria-hidden="true" style={{fontSize:'1.25rem'}}>{showPassword ? '🙈' : '👁️'}</span>
+        </button>
+      </div>
     </div>
     <div style={{display:'flex',justifyContent:'flex-end',marginTop:'-.35rem',marginBottom:'1rem'}}>
       <Link href="/admin/forgot-password" className="admin-text-button">¿Olvidaste tu contraseña?</Link>
