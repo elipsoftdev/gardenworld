@@ -182,7 +182,7 @@ CREATE INDEX idx_categories_indexable ON categories(published, indexable, displa
       'CREATE INDEX idx_password_reset_user ON password_reset_otps(user_id, id);',
       'CREATE INDEX idx_password_reset_expires ON password_reset_otps(expires_at);',
     ].join('\n'),
-  },,
+  },
   {
     id: 4,
     name: 'user_soft_delete',

@@ -69,3 +69,39 @@ export const PUT = route(async (request: Request, { params }: Params) => {
 
   return ok({ user: serializeUser(requireUser(db, id)) });
 });
+
+/** Soft-deletes an admin while preserving the row for audit and later restoration. */
+export const DELETE = route(async (request: Request, { params }: Params) => {
+  const { id: rawId } = await params;
+  const { db, user: actor } = await requireSuperAdminMutation(request);
+  const id = parseId(rawId);
+  const target = requireUser(db, id);
+
+  if (target.id === actor.id) {
+    throw new ApiError('conflict', 'You cannot delete your own account');
+  }
+  if (target.role === 'super_admin') {
+    throw new ApiError('forbidden', 'Super admin accounts cannot be deleted');
+  }
+  if (target.role !== 'admin') {
+    throw new ApiError('forbidden', 'Only admin accounts can be deleted');
+  }
+
+  db.transaction(() => {
+    db.prepare(
+      `UPDATE users
+          SET active = 0, deleted_at = datetime('now'), updated_at = datetime('now')
+        WHERE id = ?`,
+    ).run(id);
+    destroyUserSessions(db, id);
+    logAudit(db, {
+      userId: actor.id,
+      action: 'user.delete',
+      entityType: 'user',
+      entityId: id,
+      details: { email: target.email, role: target.role },
+    });
+  })();
+
+  return ok({ deleted: true });
+});

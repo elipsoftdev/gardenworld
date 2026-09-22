@@ -49,7 +49,9 @@ export function LoginForm() {
       <div style={{position:'relative'}}>
         <input id="login-password" name="password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} disabled={loading} style={{paddingRight:'3.25rem'}}/>
         <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} aria-pressed={showPassword} disabled={loading} style={{position:'absolute',right:'.55rem',top:'50%',transform:'translateY(-50%)',width:'2.25rem',height:'2.25rem',border:0,background:'transparent',display:'grid',placeItems:'center',cursor:'pointer'}}>
-          <span aria-hidden="true" style={{fontSize:'1.25rem'}}>{showPassword ? '🙈' : '👁️'}</span>
+          <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            {showPassword ? <><path d="m3 3 18 18"/><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 4.2A10.8 10.8 0 0 1 12 4c5.5 0 9.3 5.4 9.5 5.8a.4.4 0 0 1 0 .4 18.5 18.5 0 0 1-3.1 3.8"/><path d="M6.3 6.3a18.3 18.3 0 0 0-3.8 3.5.4.4 0 0 0 0 .4C2.7 10.6 6.5 16 12 16c.9 0 1.8-.2 2.6-.5"/></> : <><path d="M2.5 12s3.8-6 9.5-6 9.5 6 9.5 6-3.8 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></>}
+          </svg>
         </button>
       </div>
     </div>

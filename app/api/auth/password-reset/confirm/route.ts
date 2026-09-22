@@ -46,7 +46,7 @@ export const POST = route(async (request: Request) => {
   const row = db.prepare(
     'SELECT o.id, o.user_id, u.email, o.code_hmac, o.expires_at, o.attempts ' +
     'FROM password_reset_otps o JOIN users u ON u.id = o.user_id ' +
-    'WHERE u.email = ? AND u.active = 1 AND o.consumed_at IS NULL ORDER BY o.id DESC LIMIT 1'
+    'WHERE u.email = ? AND u.active = 1 AND u.deleted_at IS NULL AND o.consumed_at IS NULL ORDER BY o.id DESC LIMIT 1'
   ).get(email) as ResetRow | undefined;
 
   if (!row || Date.parse(row.expires_at) <= Date.now() || row.attempts >= PASSWORD_RESET_MAX_ATTEMPTS) {

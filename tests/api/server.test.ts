@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn, type ChildProcess } from 'node:child_process';
+import { createHmac } from 'node:crypto';
 import path from 'node:path';
 import Database from 'better-sqlite3';
 import { after, before, describe, test } from 'node:test';
@@ -10,6 +11,7 @@ const PORT = Number(process.env.TEST_PORT ?? 3399);
 const BASE = `http://127.0.0.1:${PORT}`;
 const SUPER_ADMIN = { email: 'super@gardenworld.test', password: 'Super-Admin-2026' };
 const ADMIN = { email: 'admin@gardenworld.test', password: 'Admin-Client-2026' };
+const PASSWORD_RESET_SECRET = 'test-password-reset-secret-that-is-at-least-32-chars';
 
 let server: ChildProcess;
 let workDir: string;
@@ -98,6 +100,9 @@ before(async () => {
         BOOTSTRAP_SUPERADMIN_NAME: 'Elipsoft',
         BOOTSTRAP_SUPERADMIN_EMAIL: SUPER_ADMIN.email,
         BOOTSTRAP_SUPERADMIN_PASSWORD: SUPER_ADMIN.password,
+        PASSWORD_RESET_SECRET,
+        SMTP_USER: 'not-used-for-deleted-users@example.test',
+        SMTP_PASSWORD: 'not-used-for-deleted-users',
         NEXT_TELEMETRY_DISABLED: '1',
       },
       stdio: 'ignore',
@@ -821,6 +826,133 @@ describe('password change', () => {
     assert.equal(oldSession.status, 401);
 
     adminCookie = await login({ email: ADMIN.email, password: newPassword });
+  });
+});
+
+describe('admin soft delete', () => {
+  const restored = {
+    name: 'Administrador restaurado',
+    email: ADMIN.email,
+    password: 'Restored-Admin-2026',
+  };
+
+  test('refuses self-deletion and deleting a super admin', async () => {
+    const db = openDatabase();
+    const superUser = db.prepare('SELECT id FROM users WHERE email = ?').get(SUPER_ADMIN.email) as { id: number };
+    db.close();
+
+    const ownAccount = await api(`/api/admin/users/${superUser.id}/`, {
+      method: 'DELETE',
+      cookie: superCookie,
+    });
+    assert.equal(ownAccount.status, 409);
+
+    const secondDb = openDatabase();
+    const secondSuperAdmin = Number(secondDb.prepare(
+      "INSERT INTO users (name, email, password_hash, role) VALUES ('Second super admin', 'second-super@gardenworld.test', 'not-a-real-password-hash', 'super_admin')",
+    ).run().lastInsertRowid);
+    secondDb.close();
+    const superAdmin = await api(`/api/admin/users/${secondSuperAdmin}/`, {
+      method: 'DELETE',
+      cookie: superCookie,
+    });
+    assert.equal(superAdmin.status, 403);
+  });
+
+  test('soft-deletes an admin, invalidates sessions, and blocks login and OTP', async () => {
+    const db = openDatabase();
+    const admin = db.prepare('SELECT id FROM users WHERE email = ?').get(ADMIN.email) as { id: number };
+    db.close();
+
+    const deleted = await api(`/api/admin/users/${admin.id}/`, {
+      method: 'DELETE',
+      cookie: superCookie,
+    });
+    assert.equal(deleted.status, 200, JSON.stringify(deleted.body));
+    assert.deepEqual(deleted.body.data, { deleted: true });
+
+    const afterDelete = openDatabase();
+    const row = afterDelete.prepare('SELECT active, deleted_at FROM users WHERE id = ?').get(admin.id) as {
+      active: number;
+      deleted_at: string | null;
+    };
+    const sessions = afterDelete.prepare('SELECT COUNT(*) AS total FROM sessions WHERE user_id = ?').get(admin.id) as { total: number };
+    const otpCount = afterDelete.prepare('SELECT COUNT(*) AS total FROM password_reset_otps WHERE user_id = ?').get(admin.id) as { total: number };
+    afterDelete.close();
+    assert.equal(row.active, 0);
+    assert.ok(row.deleted_at);
+    assert.equal(sessions.total, 0);
+
+    const list = await api('/api/admin/users/', { cookie: superCookie });
+    assert.equal(list.status, 200);
+    assert.equal(list.body.data.users.some((user: { id: number }) => user.id === admin.id), false);
+    assert.equal((await api('/api/auth/me/', { cookie: adminCookie })).status, 401);
+    assert.equal((await api('/api/auth/login/', { method: 'POST', body: { email: ADMIN.email, password: 'Admin-Rotated-2026' } })).status, 401);
+
+    const request = await api('/api/auth/password-reset/request/', {
+      method: 'POST',
+      body: { email: ADMIN.email },
+    });
+    assert.equal(request.status, 200);
+    const afterRequest = openDatabase();
+    assert.equal((afterRequest.prepare('SELECT COUNT(*) AS total FROM password_reset_otps WHERE user_id = ?').get(admin.id) as { total: number }).total, otpCount.total);
+
+    const code = '123456';
+    const codeHmac = createHmac('sha256', PASSWORD_RESET_SECRET).update(`${ADMIN.email}:${code}`).digest('hex');
+    afterRequest.prepare(
+      "INSERT INTO password_reset_otps (user_id, code_hmac, expires_at) VALUES (?, ?, datetime('now', '+10 minutes'))",
+    ).run(admin.id, codeHmac);
+    afterRequest.close();
+
+    const confirm = await api('/api/auth/password-reset/confirm/', {
+      method: 'POST',
+      body: { email: ADMIN.email, code, newPassword: 'Should-Not-Apply-2026' },
+    });
+    assert.equal(confirm.status, 422);
+  });
+
+  test('restores the same admin record with a fresh temporary password', async () => {
+    const beforeRestore = openDatabase();
+    const original = beforeRestore.prepare('SELECT id FROM users WHERE email = ?').get(ADMIN.email) as { id: number };
+    beforeRestore.prepare(
+      "INSERT INTO sessions (user_id, token_hash, expires_at) VALUES (?, ?, datetime('now', '+1 day'))",
+    ).run(original.id, 'a'.repeat(64));
+    beforeRestore.close();
+
+    const restoredResponse = await api('/api/admin/users/', {
+      method: 'POST',
+      cookie: superCookie,
+      body: restored,
+    });
+    assert.equal(restoredResponse.status, 201, JSON.stringify(restoredResponse.body));
+    assert.equal(restoredResponse.body.data.user.id, original.id);
+    assert.equal(restoredResponse.body.data.user.mustChangePassword, true);
+
+    const db = openDatabase();
+    const row = db.prepare('SELECT id, active, deleted_at, must_change_password, last_login_at FROM users WHERE email = ?').get(ADMIN.email) as {
+      id: number;
+      active: number;
+      deleted_at: string | null;
+      must_change_password: number;
+      last_login_at: string | null;
+    };
+    const count = db.prepare('SELECT COUNT(*) AS total FROM users WHERE email = ?').get(ADMIN.email) as { total: number };
+    const sessions = db.prepare('SELECT COUNT(*) AS total FROM sessions WHERE user_id = ?').get(original.id) as { total: number };
+    const actions = db.prepare("SELECT action FROM audit_log WHERE entity_id = ? AND action IN ('user.delete', 'user.restore') ORDER BY id").all(String(original.id)) as { action: string }[];
+    db.close();
+    assert.equal(row.id, original.id);
+    assert.equal(row.active, 1);
+    assert.equal(row.deleted_at, null);
+    assert.equal(row.must_change_password, 1);
+    assert.equal(row.last_login_at, null);
+    assert.equal(count.total, 1);
+    assert.equal(sessions.total, 0);
+    assert.deepEqual(actions.map((entry) => entry.action), ['user.delete', 'user.restore']);
+
+    const restoredCookie = await login({ email: restored.email, password: restored.password });
+    const restoredSession = await api('/api/auth/me/', { cookie: restoredCookie });
+    assert.equal(restoredSession.status, 200);
+    assert.equal(restoredSession.body.data.user.mustChangePassword, true);
   });
 });
 

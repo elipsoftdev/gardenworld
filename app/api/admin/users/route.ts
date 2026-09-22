@@ -5,6 +5,7 @@ import {
   passwordProblemMessage,
   validatePasswordStrength,
 } from '@/lib/auth/password';
+import { destroyUserSessions } from '@/lib/auth/session';
 import { ApiError, created, ok, route } from '@/lib/http/response';
 import { listUsers, requireUser, serializeUser } from '@/lib/repos/users';
 import { readJsonBody, Validator } from '@/lib/validation';
@@ -42,21 +43,24 @@ export const POST = route(async (request: Request) => {
   if (existing) {
     if (!existing.deleted_at) throw new ApiError('conflict', 'Email already registered');
 
-    db.prepare(
-      `UPDATE users
-          SET name = ?, password_hash = ?, role = 'admin', active = 1,
-              must_change_password = 1, deleted_at = NULL, last_login_at = NULL,
-              updated_at = datetime('now')
-        WHERE id = ?`,
-    ).run(name, hash, existing.id);
+    db.transaction(() => {
+      db.prepare(
+        `UPDATE users
+            SET name = ?, password_hash = ?, role = 'admin', active = 1,
+                must_change_password = 1, deleted_at = NULL, last_login_at = NULL,
+                updated_at = datetime('now')
+          WHERE id = ?`,
+      ).run(name, hash, existing.id);
+      destroyUserSessions(db, existing.id);
 
-    logAudit(db, {
-      userId: user.id,
-      action: 'user.restore',
-      entityType: 'user',
-      entityId: existing.id,
-      details: { email, role: 'admin' },
-    });
+      logAudit(db, {
+        userId: user.id,
+        action: 'user.restore',
+        entityType: 'user',
+        entityId: existing.id,
+        details: { email, role: 'admin' },
+      });
+    })();
 
     return created({ user: serializeUser(requireUser(db, existing.id)) });
   }

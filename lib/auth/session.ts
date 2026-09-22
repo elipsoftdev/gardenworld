@@ -39,16 +39,22 @@ export function lookupSession(db: Db, token: string | undefined | null): ActiveS
   const row = db
     .prepare(
       `SELECT s.id AS session_id, s.expires_at AS expires_at,
-              u.id, u.name, u.email, u.role, u.active, u.must_change_password, u.last_login_at
+              u.id, u.name, u.email, u.role, u.active, u.must_change_password, u.last_login_at,
+              u.deleted_at
          FROM sessions s
          JOIN users u ON u.id = s.user_id
         WHERE s.token_hash = ?`,
     )
     .get(hashToken(token)) as
-    | (SessionUser & { session_id: number; expires_at: string })
+    | (SessionUser & { session_id: number; expires_at: string; deleted_at: string | null })
     | undefined;
 
   if (!row) return null;
+
+  if (row.deleted_at !== null) {
+    destroyUserSessions(db, row.id);
+    return null;
+  }
 
   if (Date.parse(row.expires_at) <= Date.now()) {
     db.prepare('DELETE FROM sessions WHERE id = ?').run(row.session_id);

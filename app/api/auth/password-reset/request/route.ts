@@ -34,7 +34,7 @@ export const POST = route(async (request: Request) => {
   }
 
   const db = getDb();
-  const user = db.prepare('SELECT id, email, active FROM users WHERE email = ?').get(email) as
+  const user = db.prepare('SELECT id, email, active FROM users WHERE email = ? AND deleted_at IS NULL').get(email) as
     | { id: number; email: string; active: number }
     | undefined;
 

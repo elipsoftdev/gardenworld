@@ -12,6 +12,7 @@ export function UsersManager() {
   const [users, setUsers] = useState<AdminUser[] | null>(null);
   const [creating, setCreating] = useState(false);
   const [pendingDisable, setPendingDisable] = useState<AdminUser | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<AdminUser | null>(null);
   const [pendingReset, setPendingReset] = useState<AdminUser | null>(null);
   const [form, setForm] = useState({name: '', email: '', password: ''});
   const [resetPassword, setResetPassword] = useState('');
@@ -80,11 +81,27 @@ export function UsersManager() {
     }
   }
 
+  async function deleteUser() {
+    if (!pendingDelete) return;
+    setBusy(true);
+    try {
+      await adminApi('/api/admin/users/' + pendingDelete.id, {method: 'DELETE'});
+      notify('Administrador eliminado');
+      setPendingDelete(null);
+      await load();
+    } catch (caught) {
+      notify(messageForError(caught, 'No fue posible eliminar el administrador.'), 'error');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const actions = (user: AdminUser) => <div style={{display:'flex',gap:'.75rem',flexWrap:'wrap',justifyContent:'flex-end'}}>
     {user.id !== actor.id ? <button type="button" className="admin-text-button" disabled={busy} onClick={() => { setError(''); setResetPassword(''); setPendingReset(user); }}>Restablecer clave</button> : null}
     {user.active
       ? <button type="button" className="admin-text-button admin-text-button--danger" onClick={() => setPendingDisable(user)}>Desactivar</button>
       : <button type="button" className="admin-text-button" disabled={busy} onClick={() => setActive(user, true)}>Activar</button>}
+    {user.role === 'admin' ? <button type="button" className="admin-text-button admin-text-button--danger" disabled={busy} onClick={() => setPendingDelete(user)}>Eliminar</button> : null}
   </div>;
 
   const badgeClass = (active: boolean | undefined) => 'admin-badge ' + (active ? 'admin-badge--published' : 'admin-badge--archived');
@@ -116,5 +133,6 @@ export function UsersManager() {
     </Modal>
 
     <Modal open={Boolean(pendingDisable)} title="Desactivar usuario" description={'“' + (pendingDisable?.name ?? '') + '” perderá acceso y sus sesiones activas se cerrarán.'} confirmLabel="Desactivar" destructive busy={busy} onClose={() => setPendingDisable(null)} onConfirm={() => pendingDisable && setActive(pendingDisable,false)}/>
+    <Modal open={Boolean(pendingDelete)} title="Eliminar administrador" description={'“' + (pendingDelete?.name ?? '') + '” dejará de tener acceso y desaparecerá del panel. El registro se conservará internamente para auditoría.'} confirmLabel="Eliminar" destructive busy={busy} onClose={() => setPendingDelete(null)} onConfirm={deleteUser}/>
   </>;
 }
