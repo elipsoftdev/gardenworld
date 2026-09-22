@@ -42,3 +42,11 @@ export const LOGIN_LIMITS = {
   perIp: { limit: 20, windowMs: 15 * 60 * 1000 },
   perEmail: { limit: 8, windowMs: 15 * 60 * 1000 },
 };
+
+
+export const PASSWORD_RESET_LIMITS = {
+  requestPerIp: { limit: 10, windowMs: 15 * 60 * 1000 },
+  requestPerEmail: { limit: 3, windowMs: 15 * 60 * 1000 },
+  confirmPerIp: { limit: 20, windowMs: 15 * 60 * 1000 },
+  confirmPerEmail: { limit: 8, windowMs: 15 * 60 * 1000 },
+};

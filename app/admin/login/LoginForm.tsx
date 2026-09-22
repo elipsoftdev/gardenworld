@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { AdminApiError, adminApi, messageForError } from '@/lib/admin/api';
@@ -45,6 +46,9 @@ export function LoginForm() {
     <div className="admin-field">
       <label htmlFor="login-password">Contraseña</label>
       <input id="login-password" name="password" type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} disabled={loading}/>
+    </div>
+    <div style={{display:'flex',justifyContent:'flex-end',marginTop:'-.35rem',marginBottom:'1rem'}}>
+      <Link href="/admin/forgot-password" className="admin-text-button">¿Olvidaste tu contraseña?</Link>
     </div>
     <button type="submit" className="admin-button admin-button--accent" disabled={loading || !email || !password}>{loading ? 'Ingresando…' : 'Ingresar'}</button>
   </form>;

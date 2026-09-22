@@ -164,5 +164,23 @@ CREATE INDEX idx_audit_entity ON audit_log(entity_type, entity_id);
 ALTER TABLE categories ADD COLUMN indexable INTEGER NOT NULL DEFAULT 1 CHECK (indexable IN (0, 1));
 CREATE INDEX idx_categories_indexable ON categories(published, indexable, display_order);
 `,
+  },,
+  {
+    id: 3,
+    name: 'password_reset_otps',
+    sql: [
+      'CREATE TABLE password_reset_otps (',
+      '  id INTEGER PRIMARY KEY AUTOINCREMENT,',
+      '  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,',
+      '  code_hmac TEXT NOT NULL,',
+      '  expires_at TEXT NOT NULL,',
+      '  attempts INTEGER NOT NULL DEFAULT 0 CHECK (attempts >= 0),',
+      '  consumed_at TEXT,',
+      '  requested_ip TEXT,',
+      "  created_at TEXT NOT NULL DEFAULT (datetime('now'))",
+      ');',
+      'CREATE INDEX idx_password_reset_user ON password_reset_otps(user_id, id);',
+      'CREATE INDEX idx_password_reset_expires ON password_reset_otps(expires_at);',
+    ].join('\n'),
   },
 ];
