@@ -25,6 +25,8 @@ export type AuditAction =
   | 'user.disable'
   | 'user.enable'
   | 'user.password_change'
+  | 'user.password_reset_admin'
+  | 'user.password_reset_otp'
   | 'auth.login'
   | 'auth.logout'
   | 'upload.create'
