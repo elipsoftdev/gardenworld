@@ -24,6 +24,8 @@ export type AuditAction =
   | 'user.update'
   | 'user.disable'
   | 'user.enable'
+  | 'user.delete'
+  | 'user.restore'
   | 'user.password_change'
   | 'user.password_reset_admin'
   | 'user.password_reset_otp'
