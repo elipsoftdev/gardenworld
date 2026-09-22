@@ -61,7 +61,7 @@ export const POST = route(async (request: Request) => {
   const db = getDb();
   const user = db
     .prepare(
-      'SELECT id, name, email, password_hash, role, active, must_change_password FROM users WHERE email = ?',
+      'SELECT id, name, email, password_hash, role, active, must_change_password FROM users WHERE email = ? AND deleted_at IS NULL',
     )
     .get(email) as UserRow | undefined;
 
