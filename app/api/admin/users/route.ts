@@ -33,10 +33,34 @@ export const POST = route(async (request: Request) => {
   if (problem) validator.addError('password', passwordProblemMessage(problem));
   validator.assertValid();
 
-  const taken = db.prepare('SELECT 1 FROM users WHERE email = ?').get(email);
-  if (taken) throw new ApiError('conflict', 'Email already registered');
+  const existing = db.prepare('SELECT id, deleted_at FROM users WHERE email = ?').get(email) as
+    | { id: number; deleted_at: string | null }
+    | undefined;
 
   const hash = await hashPassword(body.password as string);
+
+  if (existing) {
+    if (!existing.deleted_at) throw new ApiError('conflict', 'Email already registered');
+
+    db.prepare(
+      `UPDATE users
+          SET name = ?, password_hash = ?, role = 'admin', active = 1,
+              must_change_password = 1, deleted_at = NULL, last_login_at = NULL,
+              updated_at = datetime('now')
+        WHERE id = ?`,
+    ).run(name, hash, existing.id);
+
+    logAudit(db, {
+      userId: user.id,
+      action: 'user.restore',
+      entityType: 'user',
+      entityId: existing.id,
+      details: { email, role: 'admin' },
+    });
+
+    return created({ user: serializeUser(requireUser(db, existing.id)) });
+  }
+
   const result = db
     .prepare(
       `INSERT INTO users (name, email, password_hash, role, active, must_change_password)
