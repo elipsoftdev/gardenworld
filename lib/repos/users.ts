@@ -11,18 +11,19 @@ export type UserRow = {
   last_login_at: string | null;
   created_at: string;
   updated_at: string;
+  deleted_at: string | null;
 };
 
 /** Never includes password_hash: it must not leave the database layer. */
 export const USER_SAFE_COLUMNS =
-  'id, name, email, role, active, must_change_password, last_login_at, created_at, updated_at';
+  'id, name, email, role, active, must_change_password, last_login_at, created_at, updated_at, deleted_at';
 
 export function listUsers(db: Db): UserRow[] {
-  return db.prepare(`SELECT ${USER_SAFE_COLUMNS} FROM users ORDER BY id`).all() as UserRow[];
+  return db.prepare(`SELECT ${USER_SAFE_COLUMNS} FROM users WHERE deleted_at IS NULL ORDER BY id`).all() as UserRow[];
 }
 
 export function getUser(db: Db, id: number): UserRow | undefined {
-  return db.prepare(`SELECT ${USER_SAFE_COLUMNS} FROM users WHERE id = ?`).get(id) as
+  return db.prepare(`SELECT ${USER_SAFE_COLUMNS} FROM users WHERE id = ? AND deleted_at IS NULL`).get(id) as
     | UserRow
     | undefined;
 }
@@ -35,7 +36,7 @@ export function requireUser(db: Db, id: number): UserRow {
 
 export function countActiveSuperAdmins(db: Db): number {
   const row = db
-    .prepare("SELECT COUNT(*) AS total FROM users WHERE role = 'super_admin' AND active = 1")
+    .prepare("SELECT COUNT(*) AS total FROM users WHERE role = 'super_admin' AND active = 1 AND deleted_at IS NULL")
     .get() as { total: number };
   return row.total;
 }
